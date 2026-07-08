@@ -221,26 +221,20 @@ select option { background: #1A1A2B; }
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-mark">🎵 Pre-Seed</div>
-      <div class="logo-sub">Music Tech · Ireland · $200K</div>
+      <div class="logo-sub">Music Tech · Ireland · Pre-Seed</div>
     </div>
 
     <div class="nav-label">Tracker</div>
     <div class="nav-item active" onclick="switchView('pipeline',this)">
       <span class="nav-icon">⬡</span> Investor pipeline
     </div>
-    <div class="nav-item" onclick="switchView('timeline',this)">
-      <span class="nav-icon">◷</span> 30-day sprint
-    </div>
-    <div class="nav-item" onclick="switchView('grants',this)">
+<div class="nav-item" onclick="switchView('grants',this)">
       <span class="nav-icon">◈</span> Grants & programs
     </div>
     <div class="nav-item" onclick="switchView('funds',this)">
       <span class="nav-icon">◉</span> Use of funds
     </div>
-    <div class="nav-item" onclick="switchView('log',this)">
-      <span class="nav-icon">◎</span> Conversation log
-    </div>
-    <div class="nav-item" onclick="switchView('crm',this)">
+<div class="nav-item" onclick="switchView('crm',this)">
       <span class="nav-icon">❏</span> Contact CRM
     </div>
 
@@ -279,27 +273,34 @@ select option { background: #1A1A2B; }
               <option>Meeting 1</option><option>Meeting 2</option><option>Meeting 3</option>
               <option>Term Sheet</option><option>Signed</option><option>Passed</option>
             </select>
-            <select id="filter-tier" onchange="renderInvestors()" style="width:90px;font-size:11px">
-              <option value="">All tiers</option><option>T1</option><option>T2</option>
+            <select id="filter-progress" onchange="renderInvestors()" style="width:130px;font-size:11px">
+              <option value="">All progress</option>
+              <option value="0">0 – Not interested</option>
+              <option value="1">1 – No money</option>
+              <option value="2">2 – Will refer</option>
+              <option value="3">3 – Needs session</option>
+              <option value="4">4 – Needs more info</option>
+              <option value="5">5 – Needs examples</option>
+              <option value="6">6 – Needs model explained</option>
+              <option value="7">7 – Ready to invest</option>
             </select>
-            <select id="filter-wc" onchange="renderInvestors()" style="width:90px;font-size:11px">
-              <option value="">Warm + Cold</option><option>Warm</option><option>Cold</option>
+            <select id="filter-wc" onchange="renderInvestors()" style="width:110px;font-size:11px">
+              <option value="">All contacts</option><option>Warm</option><option>Cold</option>
             </select>
           </div>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>Investor</th><th>Type</th><th>Tier</th><th>Check $K</th>
-              <th>Status</th><th>Channel</th><th>Warm/Cold</th><th>Priority</th><th>Notes</th><th></th>
+              <th>Investor</th><th>Type</th><th>Check $K</th>
+              <th>Progress</th><th>Next Action</th><th>Channel</th><th>Contact</th><th>Warm/Cold</th><th>NDA</th><th>Meetings</th><th>Last Meeting</th><th>Close %</th><th>Notes</th><th></th>
             </tr></thead>
             <tbody id="inv-body"></tbody>
           </table>
         </div>
         <div class="add-row">
           <div class="field"><label>Name</label><input type="text" id="n-name" placeholder="Investor name" style="min-width:130px"></div>
-          <div class="field"><label>Type</label><input type="text" id="n-type" placeholder="VC / Angel…" style="min-width:90px"></div>
-          <div class="field"><label>Tier</label><select id="n-tier"><option>T1</option><option>T2</option></select></div>
+          <div class="field"><label>Type</label><input type="text" id="n-type" placeholder="VC / Angel / Strategic…" style="min-width:110px"></div>
           <div class="field"><label>$K</label><input type="number" id="n-amt" placeholder="25" style="max-width:60px"></div>
           <div class="field"><label>Status</label>
             <select id="n-status">
@@ -310,6 +311,7 @@ select option { background: #1A1A2B; }
           </div>
           <div class="field"><label>Warm/Cold</label><select id="n-wc"><option>Warm</option><option>Cold</option></select></div>
           <div class="field"><label>Channel</label><select id="n-channel"><option>LinkedIn</option><option>Email</option><option>Intro</option><option>Event</option><option>Cold Call</option></select></div>
+          <div class="field"><label>Close %</label><input type="number" id="n-close" placeholder="0" min="0" max="100" style="max-width:60px"></div>
           <div class="field"><label>Priority</label><select id="n-prio"><option>High</option><option>Medium</option><option>Low</option></select></div>
           <div class="field"><label>Notes</label><input type="text" id="n-notes" placeholder="Quick note…" style="min-width:150px"></div>
           <div class="field"><label>&nbsp;</label><button class="btn btn-primary" onclick="addInvestor()">+ Add investor</button></div>
@@ -338,50 +340,6 @@ select option { background: #1A1A2B; }
       </div>
     </div>
 
-    <!-- ── TIMELINE ── -->
-    <div id="view-timeline" class="view">
-      <div class="view-title">30-day sprint</div>
-      <div class="view-sub">Check off actions as you complete them. Progress saves automatically.</div>
-
-      <div class="grid2">
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Week 1 — Jun 19–25</span>
-            <span style="font-size:10px;color:var(--muted)" id="w1-prog"></span>
-          </div>
-          <div id="tl-w1"></div>
-        </div>
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Week 2 — Jun 26–Jul 2</span>
-            <span style="font-size:10px;color:var(--muted)" id="w2-prog"></span>
-          </div>
-          <div id="tl-w2"></div>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Week 3 — Jul 3–9</span>
-            <span style="font-size:10px;color:var(--muted)" id="w3-prog"></span>
-          </div>
-          <div id="tl-w3"></div>
-        </div>
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Week 4–6 — Jul 10–31</span>
-            <span style="font-size:10px;color:var(--muted)" id="w46-prog"></span>
-          </div>
-          <div id="tl-w46"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Overall sprint progress</div>
-        <div id="sprint-overall"></div>
-      </div>
-    </div>
-
     <!-- ── GRANTS ── -->
     <div id="view-grants" class="view">
       <div class="view-title">Grants & programs</div>
@@ -407,7 +365,7 @@ select option { background: #1A1A2B; }
     <!-- ── FUNDS ── -->
     <div id="view-funds" class="view">
       <div class="view-title">Use of funds</div>
-      <div class="view-sub">Edit amounts to adjust your allocation. Total should equal $200,000.</div>
+      <div class="view-sub">Edit amounts to adjust allocation. Set your round target below.</div>
 
       <div class="grid2">
         <div class="card">
@@ -432,7 +390,7 @@ select option { background: #1A1A2B; }
             <div class="card-title">SAFE note terms</div>
             <table>
               <tbody>
-                <tr><td style="color:var(--muted)">Round size</td><td class="mono">$200,000</td></tr>
+                <tr><td style="color:var(--muted)">Round size</td><td><div style="display:flex;align-items:center;gap:4px"><span style="font-family:monospace;color:var(--muted)">$</span><input type="number" id="round-target" value="200" min="1" onfocus="this._focused=true" onblur="this._focused=false" onchange="state.roundTarget=parseInt(this.value)||200;updatePipeline();save()" style="max-width:80px;font-family:monospace"><span style="font-family:monospace;color:var(--muted)">K</span></div></td></tr>
                 <tr><td style="color:var(--muted)">Valuation cap</td><td class="mono">$2,500,000</td></tr>
                 <tr><td style="color:var(--muted)">Discount rate</td><td class="mono">20%</td></tr>
                 <tr><td style="color:var(--muted)">Instrument</td><td class="mono">SAFE Note (ASA)</td></tr>
@@ -457,32 +415,6 @@ select option { background: #1A1A2B; }
       </div>
     </div>
 
-    <!-- ── LOG ── -->
-    <div id="view-log" class="view">
-      <div class="view-title">Conversation log</div>
-      <div class="view-sub">Log every investor touchpoint. Track sentiment and next steps.</div>
-
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">All touchpoints</span>
-          <button class="btn btn-sm" onclick="addLog()">+ Add entry</button>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Date</th><th>Investor</th><th>Meeting #</th><th>Format</th><th>Channel</th>
-              <th>Key points</th><th>Sentiment</th><th>Next step</th><th>Days ago</th><th></th>
-            </tr></thead>
-            <tbody id="log-body"></tbody>
-          </table>
-        </div>
-        <div class="note-box" style="margin-top:.75rem">
-          At your timeline, never let more than 5 days pass without a touchpoint with any active investor.
-          "Days ago" turns amber at 3 days, red at 5+.
-        </div>
-      </div>
-    </div>
-
     <!-- ── CRM ── -->
     <div id="view-crm" class="view">
       <div class="view-title">Contact CRM</div>
@@ -490,16 +422,18 @@ select option { background: #1A1A2B; }
 
       <div class="card-hdr" style="margin-bottom:1rem">
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <select id="crm-filter-status" onchange="renderCRM()" style="width:130px;font-size:11px">
-            <option value="">All statuses</option>
-            <option>To Contact</option><option>Research</option><option>Warm Intro</option>
-            <option>Meeting 1</option><option>Meeting 2</option><option>Meeting 3</option>
-            <option>Term Sheet</option><option>Signed</option><option>Passed</option>
+          <select id="crm-filter-progress" onchange="renderCRM()" style="width:160px;font-size:11px">
+            <option value="">All progress levels</option>
+            <option value="0">0 – Not interested</option>
+            <option value="1">1 – No money</option>
+            <option value="2">2 – Will refer</option>
+            <option value="3">3 – Needs session</option>
+            <option value="4">4 – Needs more info</option>
+            <option value="5">5 – Needs examples</option>
+            <option value="6">6 – Needs model explained</option>
+            <option value="7">7 – Ready to invest</option>
           </select>
-          <select id="crm-filter-tier" onchange="renderCRM()" style="width:90px;font-size:11px">
-            <option value="">All tiers</option><option>T1</option><option>T2</option>
-          </select>
-          <input type="text" id="crm-search" placeholder="Search name…" oninput="renderCRM()" style="width:140px;font-size:11px">
+          <input type="text" id="crm-search" placeholder="Search name or company…" oninput="renderCRM()" style="width:180px;font-size:11px">
         </div>
         <button class="btn btn-primary btn-sm" onclick="addCRMContact()">+ Add contact</button>
       </div>
@@ -591,6 +525,7 @@ let state = {
   grants:    JSON.parse(JSON.stringify(DEFAULT_GRANTS)),
   log:       JSON.parse(JSON.stringify(DEFAULT_LOG)),
   crm:       JSON.parse(JSON.stringify(DEFAULT_CRM)),
+  roundTarget: 200, // in $K
 };
 
 let saveTimer = null;
@@ -629,13 +564,14 @@ async function pollSync() {
     const hash = JSON.stringify(data);
     if (hash !== lastHash) {
       lastHash = hash;
-      state.investors = data.investors || state.investors;
-      state.timeline  = data.timeline  || state.timeline;
-      state.funds     = data.funds     || state.funds;
-      state.grants    = data.grants    || state.grants;
-      state.log       = data.log       || state.log;
-      state.crm       = data.crm       || state.crm;
-      renderInvestors(); renderTimeline(); renderGrants(); renderFunds(); renderLog(); renderCRM();
+      state.investors   = data.investors   || state.investors;
+      state.timeline    = data.timeline    || state.timeline;
+      state.funds       = data.funds       || state.funds;
+      state.grants      = data.grants      || state.grants;
+      state.log         = data.log         || state.log;
+      state.crm         = data.crm         || state.crm;
+      state.roundTarget = data.roundTarget || state.roundTarget;
+      renderInvestors(); renderGrants(); renderFunds(); renderCRM();
       if (document.getElementById('view-funds').classList.contains('active')) renderFundsChart();
       const ind = document.getElementById('save-indicator');
       ind.textContent = '↻ Updated from cloud';
@@ -653,12 +589,13 @@ async function loadFromFirebase() {
     const res = await fetch(FIREBASE_URL + '.json');
     const data = await res.json();
     if (data) {
-      state.investors = data.investors || state.investors;
-      state.timeline  = data.timeline  || state.timeline;
-      state.funds     = data.funds     || state.funds;
-      state.grants    = data.grants    || state.grants;
-      state.log       = data.log       || state.log;
-      state.crm       = data.crm       || state.crm;
+      state.investors   = data.investors   || state.investors;
+      state.timeline    = data.timeline    || state.timeline;
+      state.funds       = data.funds       || state.funds;
+      state.grants      = data.grants      || state.grants;
+      state.log         = data.log         || state.log;
+      state.crm         = data.crm         || state.crm;
+      state.roundTarget = data.roundTarget || state.roundTarget;
       lastHash = JSON.stringify(data);
     }
   } catch(e) {
@@ -705,38 +642,74 @@ function grantStatusOpts(cur) {
   return GRANT_STATUSES.map(s => `<option${s===cur?' selected':''}>${s}</option>`).join('');
 }
 
+// ── PROGRESS LEVELS ───────────────────────────────────────────────────────────
+const PROGRESS_LEVELS = {
+  0: { label: "0 – Not interested",        color: "#F04D4D", action: "No action — move on" },
+  1: { label: "1 – No money",              color: "#F88",    action: "Negotiations over — ask for referrals to other investors" },
+  2: { label: "2 – Will refer",            color: "#F5A623", action: "Ask for a warm introduction to someone who will invest" },
+  3: { label: "3 – Needs session",         color: "#A78BFA", action: "Prepare a session with other presenters and/or testimonials" },
+  4: { label: "4 – Needs more info",       color: "#4D9FFF", action: "Prepare an ad hoc session with technical/financial/market detail" },
+  5: { label: "5 – Needs examples",        color: "#22C97A", action: "Present detailed examples and testimonials of economic value" },
+  6: { label: "6 – Needs model explained", color: "#7C5CFC", action: "Present basic complexity concepts and examples of the model" },
+  7: { label: "7 – Ready to invest",       color: "#22C97A", action: "No challenges — move to close" },
+};
+
+function progressOpts(cur) {
+  return Object.entries(PROGRESS_LEVELS).map(([k,v])=>
+    `<option value="${k}"${parseInt(cur)===parseInt(k)?' selected':''}>${v.label}</option>`
+  ).join('');
+}
+
+function progressBadge(p) {
+  const lvl = PROGRESS_LEVELS[p] || PROGRESS_LEVELS[0];
+  return `<span class="pill" style="background:${lvl.color}22;color:${lvl.color};white-space:normal;line-height:1.3">${lvl.label}</span>`;
+}
+
+function closePct(inv) {
+  // Auto-suggest based on progress if not manually set
+  if (inv.closePct !== undefined && inv.closePct !== null && inv.closePct !== '') return inv.closePct;
+  const auto = [0,5,15,25,40,55,70,90];
+  return auto[parseInt(inv.progress)||0] || 0;
+}
+
 // ── PIPELINE ──────────────────────────────────────────────────────────────────
 function renderInvestors() {
   const fs = document.getElementById('filter-status').value;
-  const ft = document.getElementById('filter-tier').value;
+  const fp = document.getElementById('filter-progress').value;
   const fw = document.getElementById('filter-wc').value;
   let list = state.investors;
   if (fs) list = list.filter(i => i.status === fs);
-  if (ft) list = list.filter(i => i.tier === ft);
+  if (fp !== '') list = list.filter(i => String(i.progress||0) === fp);
   if (fw) list = list.filter(i => i.wc === fw);
 
-  document.getElementById('inv-body').innerHTML = list.map((inv, ri) => {
+  const target = state.roundTarget || 200;
+
+  document.getElementById('inv-body').innerHTML = list.map((inv) => {
     const i = state.investors.indexOf(inv);
+    const pct = closePct(inv);
+    const pctColor = pct >= 60 ? 'var(--green)' : pct >= 30 ? 'var(--amber)' : 'var(--red)';
+    const crmLink = `<a href="#" onclick="openCRMCard('${esc(inv.name)}');return false" title="Open CRM card" style="font-size:10px;color:var(--accent)">CRM ↗</a>`;
     return `<tr>
-      <td><input type="text" value="${esc(inv.name)}" onchange="state.investors[${i}].name=this.value;updatePipeline();save()"></td>
-      <td><input type="text" value="${esc(inv.type)}" onchange="state.investors[${i}].type=this.value;save()" style="max-width:80px"></td>
       <td>
-        <select onchange="state.investors[${i}].tier=this.value;updatePipeline();save()">
-          <option${inv.tier==='T1'?' selected':''}>T1</option>
-          <option${inv.tier==='T2'?' selected':''}>T2</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="text" value="${esc(inv.name)}" onchange="state.investors[${i}].name=this.value;updatePipeline();save()">
+          ${crmLink}
+        </div>
       </td>
+      <td><input type="text" value="${esc(inv.type||'')}" onchange="state.investors[${i}].type=this.value;save()" style="max-width:100px" placeholder="VC / Angel…"></td>
       <td><input type="number" value="${inv.amt}" onchange="state.investors[${i}].amt=parseInt(this.value)||0;updatePipeline();save()" style="max-width:56px"></td>
-      <td>
-        <select onchange="state.investors[${i}].status=this.value;updatePipeline();save()">
-          ${statusOpts(inv.status)}
+      <td style="min-width:160px">
+        <select onchange="state.investors[${i}].progress=parseInt(this.value);updatePipeline();save()" style="font-size:11px;color:${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).color}">
+          ${progressOpts(inv.progress||0)}
         </select>
       </td>
+      <td style="min-width:160px;font-size:10px;color:var(--muted);line-height:1.3">${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).action}</td>
       <td>
         <select onchange="state.investors[${i}].channel=this.value;save()" style="width:90px">
           ${channelOpts(inv.channel||'LinkedIn')}
         </select>
       </td>
+      <td><input type="text" value="${esc(inv.contact||'')}" onchange="state.investors[${i}].contact=this.value;save()" style="max-width:110px" placeholder="email / @handle"></td>
       <td>
         <select onchange="state.investors[${i}].wc=this.value;updatePipeline();save()">
           <option${inv.wc==='Warm'?' selected':''}>Warm</option>
@@ -744,35 +717,65 @@ function renderInvestors() {
         </select>
       </td>
       <td>
-        <select onchange="state.investors[${i}].prio=this.value;save()">
-          <option${inv.prio==='High'?' selected':''}>High</option>
-          <option${inv.prio==='Medium'?' selected':''}>Medium</option>
-          <option${inv.prio==='Low'?' selected':''}>Low</option>
+        <select onchange="state.investors[${i}].nda=this.value==='Yes';save()" style="color:${inv.nda?'var(--green)':'var(--dim)'}">
+          <option${inv.nda?' selected':''}>Yes</option>
+          <option${!inv.nda?' selected':''}>No</option>
         </select>
       </td>
-      <td><input type="text" value="${esc(inv.notes)}" onchange="state.investors[${i}].notes=this.value;save()" style="min-width:140px"></td>
+      <td><input type="number" value="${inv.meetings||0}" min="0" onchange="state.investors[${i}].meetings=parseInt(this.value)||0;save()" style="max-width:48px"></td>
+      <td><input type="date" value="${inv.lastMeeting||''}" onchange="state.investors[${i}].lastMeeting=this.value;save()" style="max-width:120px"></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="number" value="${pct}" min="0" max="100" onchange="state.investors[${i}].closePct=parseInt(this.value)||0;updatePipeline();save()" style="max-width:48px;color:${pctColor}">
+          <span style="font-size:10px;color:${pctColor}">%</span>
+        </div>
+      </td>
+      <td><input type="text" value="${esc(inv.notes||'')}" onchange="state.investors[${i}].notes=this.value;save()" style="min-width:140px"></td>
       <td><button class="btn btn-sm btn-danger" onclick="removeInvestor(${i})">Del</button></td>
     </tr>`;
   }).join('');
   updatePipeline();
 }
 
+function openCRMCard(name) {
+  // Switch to CRM view and scroll to matching card
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-crm').classList.add('active');
+  // Find and activate the CRM nav item
+  navItems.forEach(n => { if (n.textContent.includes('Contact CRM')) n.classList.add('active'); });
+  document.getElementById('crm-search').value = name;
+  renderCRM();
+  setTimeout(() => {
+    const first = document.querySelector('.crm-card');
+    if (first) first.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
+}
+
 function addInvestor() {
   const name = document.getElementById('n-name').value.trim();
   if (!name) return;
   state.investors.push({
-    name, type: document.getElementById('n-type').value || 'Angel',
-    tier: document.getElementById('n-tier').value,
+    name,
+    type: document.getElementById('n-type').value || 'Angel',
     amt: parseInt(document.getElementById('n-amt').value) || 25,
     status: document.getElementById('n-status').value,
+    progress: 0,
+    contact: '',
     wc: document.getElementById('n-wc').value,
     channel: document.getElementById('n-channel').value,
+    closePct: parseInt(document.getElementById('n-close').value) || null,
+    nda: false,
+    meetings: 0,
+    lastMeeting: '',
     prio: document.getElementById('n-prio').value,
     notes: document.getElementById('n-notes').value,
   });
   document.getElementById('n-name').value = '';
   document.getElementById('n-amt').value = '';
   document.getElementById('n-notes').value = '';
+  document.getElementById('n-close').value = '';
   save(); renderInvestors();
 }
 
@@ -785,15 +788,21 @@ function removeInvestor(i) {
 function updatePipeline() {
   const inv = state.investors;
   const total = inv.length;
+  const target = state.roundTarget || 200;
   const warm = inv.filter(i => i.wc === 'Warm').reduce((a, i) => a + i.amt, 0);
   const signed = inv.filter(i => i.status === 'Signed').reduce((a, i) => a + i.amt, 0);
   const inProg = inv.filter(i => ['Meeting 1','Meeting 2','Meeting 3','Term Sheet'].includes(i.status)).reduce((a,i)=>a+i.amt,0);
+  const weightedPipeline = inv.reduce((a,i) => a + (i.amt * (closePct(i)/100)), 0);
+
+  // Update round-target input if it exists
+  const rtInput = document.getElementById('round-target');
+  if (rtInput && !rtInput._focused) rtInput.value = target * 1000;
 
   document.getElementById('pipeline-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">Investors tracked</div><div class="metric-value">${total}</div><div class="metric-sub">${inv.filter(i=>i.tier==='T1').length} Tier 1 · ${inv.filter(i=>i.tier==='T2').length} Tier 2</div></div>
-    <div class="metric"><div class="metric-label">Warm pipeline</div><div class="metric-value">$${warm}K</div><div class="metric-sub">${inv.filter(i=>i.wc==='Warm').length} warm contacts</div></div>
-    <div class="metric"><div class="metric-label">In conversations</div><div class="metric-value${inProg>0?' amber':''}">${inv.filter(i=>['Meeting 1','Meeting 2','Meeting 3','Term Sheet'].includes(i.status)).length} investors</div><div class="metric-sub">$${inProg}K in active talks</div></div>
-    <div class="metric"><div class="metric-label">Signed</div><div class="metric-value${signed>0?' green':''}">$${signed}K</div><div class="metric-sub">${inv.filter(i=>i.status==='Signed').length} investors closed · ${Math.round(signed/200*100)}% of target</div></div>`;
+    <div class="metric"><div class="metric-label">Investors tracked</div><div class="metric-value">${total}</div><div class="metric-sub">${inv.filter(i=>i.wc==='Warm').length} warm · ${inv.filter(i=>i.wc==='Cold').length} cold</div></div>
+    <div class="metric"><div class="metric-label">Warm pipeline</div><div class="metric-value">$${warm}K</div><div class="metric-sub">${inv.filter(i=>i.wc==='Warm').length} contacts · ${Math.round(warm/target*100)}% of $${target}K</div></div>
+    <div class="metric"><div class="metric-label">Weighted close</div><div class="metric-value${weightedPipeline>0?' amber':''}" style="font-size:16px">$${Math.round(weightedPipeline)}K</div><div class="metric-sub">probability-adjusted pipeline</div></div>
+    <div class="metric"><div class="metric-label">Signed</div><div class="metric-value${signed>0?' green':''}">$${signed}K</div><div class="metric-sub">${inv.filter(i=>i.status==='Signed').length} closed · ${Math.round(signed/target*100)}% of $${target}K target</div></div>`;
 
   // Status bars
   const counts = {}, amts = {};
@@ -805,15 +814,16 @@ function updatePipeline() {
       <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(c/(total||1)*100)}%;background:${colors[s]||'#888'}"></div></div>
     </div>`).join('');
 
-  // Capital bars
-  const t1 = inv.filter(i=>i.tier==='T1').reduce((a,i)=>a+i.amt,0);
-  const t2 = inv.filter(i=>i.tier==='T2').reduce((a,i)=>a+i.amt,0);
-  const tot = t1+t2||1;
-  document.getElementById('capital-bars').innerHTML = `
-    <div class="prog-wrap"><div class="prog-label"><span>Tier 1 — music focused</span><span class="mono">$${t1}K</span></div><div class="prog-bar"><div class="prog-fill" style="width:${Math.round(t1/tot*100)}%;background:#7C5CFC"></div></div></div>
-    <div class="prog-wrap"><div class="prog-label"><span>Tier 2 — EU / agnostic</span><span class="mono">$${t2}K</span></div><div class="prog-bar"><div class="prog-fill" style="width:${Math.round(t2/tot*100)}%;background:#4D9FFF"></div></div></div>
-    <div class="prog-wrap"><div class="prog-label"><span>Warm contacts</span><span class="mono">$${warm}K of target</span></div><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(100,Math.round(warm/200*100))}%;background:#22C97A"></div></div></div>
-    <div class="prog-wrap"><div class="prog-label"><span>Signed vs $200K target</span><span class="mono">$${signed}K</span></div><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(100,Math.round(signed/200*100))}%;background:#F5A623"></div></div></div>`;
+  // Progress bars
+  const progCounts = {};
+  inv.forEach(i => { const p = i.progress||0; progCounts[p]=(progCounts[p]||0)+1; });
+  document.getElementById('capital-bars').innerHTML = Object.entries(PROGRESS_LEVELS).map(([k,v])=>{
+    const c = progCounts[k]||0;
+    return `<div class="prog-wrap">
+      <div class="prog-label"><span style="color:${v.color};font-size:10px">${v.label}</span><span class="mono">${c} investor${c!==1?'s':''}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(c/(total||1)*100)}%;background:${v.color}"></div></div>
+    </div>`;
+  }).join('');
 
   // Channel bars
   const chCounts = {}, chAmts = {};
@@ -1005,27 +1015,23 @@ function esc(str) {
 }
 
 // ── CRM ───────────────────────────────────────────────────────────────────────
-const INTEREST_LEVELS = ["Very High","High","Medium","Low","None"];
-const INTEREST_COLOR = {"Very High":"#22C97A","High":"#4D9FFF","Medium":"#F5A623","Low":"#F04D4D","None":"#555466"};
-
 function goalColor(pct) {
   if (pct >= 75) return 'var(--green)';
   if (pct >= 40) return 'var(--amber)';
   return 'var(--red)';
 }
 
-function interestOpts(cur) {
-  return INTEREST_LEVELS.map(s=>`<option${s===cur?' selected':''}>${s}</option>`).join('');
-}
-
 function renderCRM() {
-  const fs = document.getElementById('crm-filter-status').value;
-  const ft = document.getElementById('crm-filter-tier').value;
+  const fp = document.getElementById('crm-filter-progress').value;
   const search = (document.getElementById('crm-search').value||'').toLowerCase();
 
   let list = state.crm.map((c,i)=>({...c,_i:i}));
-  if (fs) list = list.filter(c=>c.status===fs);
-  if (search) list = list.filter(c=>(c.name||'').toLowerCase().includes(search)||(c.contact||'').toLowerCase().includes(search));
+  if (fp !== '') list = list.filter(c=>String(c.progress||0)===fp);
+  if (search) list = list.filter(c=>
+    (c.name||'').toLowerCase().includes(search)||
+    (c.company||'').toLowerCase().includes(search)||
+    (c.contact||'').toLowerCase().includes(search)
+  );
 
   if (!list.length) {
     document.getElementById('crm-grid').innerHTML = '<div style="color:var(--dim);font-size:12px;grid-column:1/-1">No contacts match your filters.</div>';
@@ -1034,19 +1040,29 @@ function renderCRM() {
 
   document.getElementById('crm-grid').innerHTML = list.map(c => {
     const i = c._i;
+    const p = c.progress || 0;
+    const lvl = PROGRESS_LEVELS[p] || PROGRESS_LEVELS[0];
     const goalPct = Math.min(100, Math.max(0, c.goal||0));
+    const goalClr = goalColor(goalPct);
     return `
     <div class="crm-card">
       <div class="crm-card-hdr">
-        <div>
-          <div class="crm-name"><input type="text" value="${esc(c.name)}" onchange="state.crm[${i}].name=this.value;save()" style="font-size:14px;font-weight:600;background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);padding:0;width:100%" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent'"></div>
-          <div class="crm-type">
-            <select onchange="state.crm[${i}].status=this.value;save()" style="font-size:10px;background:transparent;border:none;color:var(--muted);padding:0;cursor:pointer">
-              ${statusOpts(c.status)}
-            </select>
+        <div style="flex:1;min-width:0">
+          <div class="crm-name"><input type="text" value="${esc(c.name)}" placeholder="Contact name" onchange="state.crm[${i}].name=this.value;save()" style="font-size:14px;font-weight:600;background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);padding:0;width:100%" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent'"></div>
+          <div style="margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <input type="text" value="${esc(c.company||'')}" placeholder="Company name" onchange="state.crm[${i}].company=this.value;save()" style="font-size:11px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);padding:0 0 1px;max-width:130px" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='var(--border)'">
+            <input type="text" value="${esc(c.url||'')}" placeholder="Website URL" onchange="state.crm[${i}].url=this.value;save()" style="font-size:10px;background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--accent);padding:0 0 1px;max-width:130px" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='var(--border)'">
           </div>
         </div>
         <button class="btn btn-sm btn-danger crm-del" onclick="removeCRM(${i})">Del</button>
+      </div>
+
+      <div style="padding:6px 8px;border-radius:6px;background:${lvl.color}18;border:1px solid ${lvl.color}33">
+        <div style="font-size:9px;color:${lvl.color};text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Progress</div>
+        <select onchange="state.crm[${i}].progress=parseInt(this.value);renderCRM();save()" style="font-size:11px;color:${lvl.color};background:transparent;border:none;padding:0;width:100%;cursor:pointer">
+          ${progressOpts(p)}
+        </select>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4">→ ${lvl.action}</div>
       </div>
 
       <div class="crm-divider"></div>
@@ -1054,7 +1070,7 @@ function renderCRM() {
       <div class="crm-row">
         <div class="crm-field">
           <div class="crm-label">Contact / Email</div>
-          <input type="text" value="${esc(c.contact)}" placeholder="email or @handle" onchange="state.crm[${i}].contact=this.value;save()" style="font-size:11px">
+          <input type="text" value="${esc(c.contact||'')}" placeholder="email or @handle" onchange="state.crm[${i}].contact=this.value;save()" style="font-size:11px">
         </div>
         <div class="crm-field">
           <div class="crm-label">Channel</div>
@@ -1064,40 +1080,14 @@ function renderCRM() {
         </div>
       </div>
 
-      <div class="crm-row">
-        <div class="crm-field">
-          <div class="crm-label">Interest level</div>
-          <select onchange="state.crm[${i}].interest=this.value;save()" style="font-size:11px;color:${INTEREST_COLOR[c.interest||'Medium']}">
-            ${interestOpts(c.interest||'Medium')}
-          </select>
-        </div>
-        <div class="crm-field">
-          <div class="crm-label">Meetings held</div>
-          <input type="number" value="${c.meetings||0}" min="0" onchange="state.crm[${i}].meetings=parseInt(this.value)||0;save()" style="font-size:11px;max-width:60px">
-        </div>
-      </div>
-
       <div class="crm-field">
-        <div class="crm-label">Last meeting date</div>
-        <input type="date" value="${c.lastMeeting||''}" onchange="state.crm[${i}].lastMeeting=this.value;save()" style="font-size:11px">
-      </div>
-
-      <div class="crm-row">
-        <div class="crm-field">
-          <div class="crm-label">Signed NDA?</div>
-          <select onchange="state.crm[${i}].nda=this.value==='Yes';save()" style="font-size:11px;color:${c.nda?'var(--green)':'var(--dim)'}">
-            <option${c.nda?' selected':''}>Yes</option>
-            <option${!c.nda?' selected':''}>No</option>
-          </select>
-        </div>
-        <div class="crm-field">
-          <div class="crm-label">Close probability %</div>
-          <div class="crm-goal-wrap">
-            <input type="number" value="${goalPct}" min="0" max="100" onchange="state.crm[${i}].goal=parseInt(this.value)||0;renderCRM();save()" style="font-size:13px;font-weight:600;max-width:56px;color:${goalColor(goalPct)}">
-            <div style="flex:1">
-              <div class="prog-bar"><div class="prog-fill" style="width:${goalPct}%;background:${goalColor(goalPct)}"></div></div>
-            </div>
+        <div class="crm-label">Close probability %</div>
+        <div class="crm-goal-wrap">
+          <input type="number" value="${goalPct}" min="0" max="100" onchange="state.crm[${i}].goal=parseInt(this.value)||0;renderCRM();save()" style="font-size:13px;font-weight:600;max-width:56px;color:${goalClr}">
+          <div style="flex:1">
+            <div class="prog-bar" style="height:6px"><div class="prog-fill" style="width:${goalPct}%;background:${goalClr}"></div></div>
           </div>
+          <span style="font-size:11px;color:${goalClr}">${goalPct}%</span>
         </div>
       </div>
 
@@ -1105,17 +1095,17 @@ function renderCRM() {
 
       <div class="crm-field">
         <div class="crm-label">Challenges / objections</div>
-        <textarea rows="2" onchange="state.crm[${i}].challenges=this.value;save()" style="font-size:11px;resize:vertical">${esc(c.challenges)}</textarea>
+        <textarea rows="5" onchange="state.crm[${i}].challenges=this.value;save()" style="font-size:11px;resize:vertical;min-height:90px">${esc(c.challenges||'')}</textarea>
       </div>
 
       <div class="crm-row">
         <div class="crm-field">
           <div class="crm-label" style="color:var(--green)">✓ Reasons they'll say yes</div>
-          <textarea rows="2" onchange="state.crm[${i}].reasonYes=this.value;save()" style="font-size:11px;resize:vertical;border-color:rgba(34,201,122,0.2)">${esc(c.reasonYes)}</textarea>
+          <textarea rows="3" onchange="state.crm[${i}].reasonYes=this.value;save()" style="font-size:11px;resize:vertical;border-color:rgba(34,201,122,0.2)">${esc(c.reasonYes||'')}</textarea>
         </div>
         <div class="crm-field">
           <div class="crm-label" style="color:var(--red)">✗ Reasons they might pass</div>
-          <textarea rows="2" onchange="state.crm[${i}].reasonNo=this.value;save()" style="font-size:11px;resize:vertical;border-color:rgba(240,77,77,0.15)">${esc(c.reasonNo)}</textarea>
+          <textarea rows="3" onchange="state.crm[${i}].reasonNo=this.value;save()" style="font-size:11px;resize:vertical;border-color:rgba(240,77,77,0.15)">${esc(c.reasonNo||'')}</textarea>
         </div>
       </div>
     </div>`;
@@ -1124,9 +1114,8 @@ function renderCRM() {
 
 function addCRMContact() {
   state.crm.unshift({
-    name:'New Contact', contact:'', status:'To Contact', channel:'LinkedIn',
-    challenges:'', nda:false, meetings:0, lastMeeting:'', interest:'Medium',
-    goal:0, reasonYes:'', reasonNo:''
+    name:'New Contact', company:'', url:'', contact:'', channel:'LinkedIn',
+    progress:0, challenges:'', goal:0, reasonYes:'', reasonNo:''
   });
   save(); renderCRM();
 }
@@ -1155,12 +1144,11 @@ function importData() {
       try {
         const imported = JSON.parse(ev.target.result);
         if (imported.investors) state.investors = imported.investors;
-        if (imported.timeline) state.timeline = imported.timeline;
         if (imported.funds) state.funds = imported.funds;
         if (imported.grants) state.grants = imported.grants;
-        if (imported.log) state.log = imported.log;
         if (imported.crm) state.crm = imported.crm;
-        renderInvestors(); renderTimeline(); renderGrants(); renderFunds(); renderFundsChart(); renderLog(); renderCRM();
+        if (imported.roundTarget) state.roundTarget = imported.roundTarget;
+        renderInvestors(); renderGrants(); renderFunds(); renderFundsChart(); renderCRM();
         save();
         alert('Data imported and synced to cloud.');
       } catch { alert('Invalid file.'); }
@@ -1174,13 +1162,12 @@ function importData() {
 updateDeadline();
 loadFromFirebase().then(() => {
   renderInvestors();
-  renderTimeline();
   renderGrants();
   renderFunds();
   renderFundsChart();
-  renderLog();
   renderCRM();
-  // Poll for changes every 5 seconds
+  const rtInput = document.getElementById('round-target');
+  if (rtInput) rtInput.value = state.roundTarget || 200;
   setInterval(pollSync, 5000);
 });
 </script>
