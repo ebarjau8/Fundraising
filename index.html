@@ -188,6 +188,11 @@ select option { background: #1A1A2B; }
   .main { padding: 1rem; }
 }
 
+/* Hide number spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
 @media print {
   .sidebar { display: none; }
   .app { grid-template-columns: 1fr; }
@@ -227,6 +232,9 @@ select option { background: #1A1A2B; }
     <div class="nav-label">Tracker</div>
     <div class="nav-item active" onclick="switchView('pipeline',this)">
       <span class="nav-icon">⬡</span> Investor pipeline
+    </div>
+    <div class="nav-item" onclick="switchView('notes',this)">
+      <span class="nav-icon">📋</span> Pipeline notes
     </div>
 <div class="nav-item" onclick="switchView('grants',this)">
       <span class="nav-icon">◈</span> Grants & programs
@@ -294,7 +302,7 @@ select option { background: #1A1A2B; }
           <table>
             <thead><tr>
               <th>Name</th><th>Company</th><th>Type</th><th>Check $K</th>
-              <th>Progress</th><th>Next Action</th><th>Contact</th><th>NDA</th><th>Meetings</th><th>Last Meeting</th><th>Notes</th><th></th>
+              <th>Progress</th><th>Challenges</th><th>Contact</th><th>NDA</th><th>Meetings</th><th>Last Meeting</th><th>Notes</th><th></th>
             </tr></thead>
             <tbody id="inv-body"></tbody>
           </table>
@@ -318,8 +326,8 @@ select option { background: #1A1A2B; }
 
       <div class="grid2">
         <div class="card">
-          <div class="card-title">Pipeline by status</div>
-          <div id="status-bars"></div>
+          <div class="card-title">Challenges breakdown</div>
+          <div id="challenge-bars"></div>
         </div>
         <div class="card">
           <div class="card-title">Progress breakdown</div>
@@ -327,7 +335,23 @@ select option { background: #1A1A2B; }
         </div>
       </div>
       <!-- hidden divs kept for JS compatibility -->
-      <div style="display:none"><div id="channel-bars"></div><div id="channel-wc-bars"></div></div>
+      <div style="display:none"><div id="status-bars"></div><div id="channel-bars"></div><div id="channel-wc-bars"></div></div>
+    </div>
+
+    <!-- ── NOTES ── -->
+    <div id="view-notes" class="view">
+      <div class="view-title">Pipeline notes</div>
+      <div class="view-sub">Reference guide for progress levels and challenges.</div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Progress scale — what each level means</div>
+          <div id="notes-progress-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Challenges — what to do at each level</div>
+          <div id="notes-challenge-list"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ── GRANTS ── -->
@@ -630,6 +654,7 @@ function switchView(id, el) {
   document.getElementById('view-' + id).classList.add('active');
   el.classList.add('active');
   if (id === 'funds') renderFundsChart();
+  if (id === 'notes') renderNotes();
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -661,7 +686,20 @@ function grantStatusOpts(cur) {
   return GRANT_STATUSES.map(s => `<option${s===cur?' selected':''}>${s}</option>`).join('');
 }
 
-// ── PROGRESS LEVELS ───────────────────────────────────────────────────────────
+// ── CHALLENGES (indexed by progress level) ────────────────────────────────────
+const CHALLENGES = {
+  0:  "—",
+  1:  "Interested but doesn't have money to invest: negotiations are over; explore other investors through this contact",
+  2:  "Will not invest but knows who will; ask for a warm introduction",
+  3:  "Doesn't understand the project, but he'd be interested in investing; prepare a session with other presenters and/or testimonials",
+  4:  "Understands the project but requires more technical / financial / market information before investing; prepare an ad hoc session",
+  5:  "Understands the economic value of the proposal, but not the industry or the model; present in detail examples and testimonials",
+  6:  "Understands the impact of the proposal on the industry, but not the model; present basic complexity concepts and examples",
+  7:  "Understands the impact on the industry and the model: there are no challenges",
+  8:  "Is willing to invest — move to close, send SAFE documentation",
+  9:  "Has requested the documentation to invest — follow up within 48h",
+  10: "HE IS ALREADY AN INVESTOR — ensure deposit confirmed and paperwork complete",
+};
 const PROGRESS_LEVELS = {
   0:  { label: "0 – Not interested",                color: "#F04D4D", action: "Not interested in the project: negotiations are over" },
   1:  { label: "1 – Identified",                    color: "#F88",    action: "Interested but doesn't have money to invest: negotiations are over; explore other investors through this contact" },
@@ -720,13 +758,15 @@ function renderInvestors() {
       </td>
       <td><input type="text" value="${esc(inv.company||'')}" onchange="state.investors[${i}].company=this.value;save()" style="max-width:110px" placeholder="Company…"></td>
       <td><input type="text" value="${esc(inv.type||'')}" onchange="state.investors[${i}].type=this.value;save()" style="max-width:90px" placeholder="VC / Angel…"></td>
-      <td><input type="number" value="${inv.amt}" onchange="state.investors[${i}].amt=parseInt(this.value)||0;updatePipeline();save()" style="max-width:56px"></td>
-      <td style="min-width:160px">
+      <td><input type="number" value="${inv.amt}" onchange="state.investors[${i}].amt=parseInt(this.value)||0;updatePipeline();save()" style="max-width:56px;-moz-appearance:textfield" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+      <td style="min-width:140px">
         <select onchange="state.investors[${i}].progress=parseInt(this.value);updatePipeline();save()" style="font-size:11px;color:${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).color}">
           ${progressOpts(inv.progress||0)}
         </select>
       </td>
-      <td style="min-width:180px;font-size:10px;color:var(--muted);line-height:1.3">${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).action}</td>
+      <td style="max-width:180px">
+        <span title="${esc(CHALLENGES[inv.progress||0]||'')}" style="font-size:10px;color:var(--muted);line-height:1.3;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;cursor:help">${esc(CHALLENGES[inv.progress||0]||'—')}</span>
+      </td>
       <td><input type="text" value="${esc(inv.contact||'')}" onchange="state.investors[${i}].contact=this.value;save()" style="max-width:110px" placeholder="email / @handle"></td>
       <td>
         <select onchange="state.investors[${i}].nda=this.value==='Yes';save()" style="color:${inv.nda?'var(--green)':'var(--dim)'}">
@@ -830,33 +870,34 @@ function updatePipeline() {
     </div>`;
   }).join('');
 
-  // Channel bars
+  // Channel bars (hidden, kept for compatibility)
   const chCounts = {}, chAmts = {};
   inv.forEach(i => {
     const ch = i.channel || 'LinkedIn';
     chCounts[ch] = (chCounts[ch]||0) + 1;
     chAmts[ch]   = (chAmts[ch]||0) + i.amt;
   });
-  document.getElementById('channel-bars').innerHTML = CHANNELS.filter(ch=>chCounts[ch]).map(ch=>`
-    <div class="prog-wrap">
-      <div class="prog-label"><span><span class="pill ${CHANNEL_CLS[ch]}">${ch}</span></span><span class="mono">${chCounts[ch]} · $${chAmts[ch]}K</span></div>
-      <div class="prog-bar"><div class="prog-fill" style="width:${Math.round((chCounts[ch]||0)/(total||1)*100)}%;background:var(--accent)"></div></div>
-    </div>`).join('') || '<div style="color:var(--dim);font-size:11px">No data yet</div>';
+  document.getElementById('channel-bars').innerHTML = '';
+  document.getElementById('channel-wc-bars').innerHTML = '';
 
-  // Channel vs warm/cold
-  const chWarm = {}, chCold = {};
-  inv.forEach(i => {
-    const ch = i.channel || 'LinkedIn';
-    if (i.wc === 'Warm') chWarm[ch] = (chWarm[ch]||0)+1;
-    else chCold[ch] = (chCold[ch]||0)+1;
-  });
-  document.getElementById('channel-wc-bars').innerHTML = CHANNELS.filter(ch=>chCounts[ch]).map(ch=>`
-    <div class="prog-wrap">
-      <div class="prog-label"><span style="font-size:11px">${ch}</span><span class="mono" style="font-size:10px">🟢 ${chWarm[ch]||0} warm · ⚫ ${chCold[ch]||0} cold</span></div>
-      <div class="prog-bar" style="height:7px">
-        <div class="prog-fill" style="width:${Math.round(((chWarm[ch]||0)/((chCounts[ch])||1))*100)}%;background:#22C97A"></div>
-      </div>
-    </div>`).join('') || '<div style="color:var(--dim);font-size:11px">No data yet</div>';
+  // Challenges breakdown
+  const chalCounts = {};
+  inv.forEach(i => { const p = i.progress||0; chalCounts[p]=(chalCounts[p]||0)+1; });
+  const chalEl = document.getElementById('challenge-bars');
+  if (chalEl) {
+    chalEl.innerHTML = Object.entries(CHALLENGES).map(([k,v])=>{
+      const c = chalCounts[k]||0;
+      const lvl = PROGRESS_LEVELS[k]||PROGRESS_LEVELS[0];
+      const short = v.length > 55 ? v.slice(0,55)+'…' : v;
+      return `<div class="prog-wrap">
+        <div class="prog-label" title="${v}">
+          <span style="color:${lvl.color};font-size:10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${short}</span>
+          <span class="mono">${c}</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(c/(total||1)*100)}%;background:${lvl.color}"></div></div>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ── TIMELINE ──────────────────────────────────────────────────────────────────
@@ -886,6 +927,39 @@ function renderTimeline() {
 function toggleTL(wk, i) {
   state.timeline[wk][i].done = !state.timeline[wk][i].done;
   save(); renderTimeline();
+}
+
+// ── NOTES ─────────────────────────────────────────────────────────────────────
+const PROGRESS_DESCRIPTIONS = {
+  0:  "Not interested in the project: negotiations are over",
+  1:  "Identified. A person can contact him/her",
+  2:  "Contacted. The project has been explained to him in general terms",
+  3:  "Interest. Wants to learn about the business proposal",
+  4:  "Knowledge 0. Does not like or is not interested in the proposal/model",
+  5:  "Knowledge 1. Is interested but does not understand the proposal/model",
+  6:  "Knowledge 2. Understands the industry and opportunity",
+  7:  "Knowledge 3. Understands the industry and the model",
+  8:  "Is willing to invest",
+  9:  "Has requested the documentation to invest",
+  10: "HE IS ALREADY AN INVESTOR (has made a deposit)",
+};
+
+function renderNotes() {
+  const row = (k, v, color) => `
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:monospace;font-size:13px;font-weight:700;color:${color};min-width:26px;flex-shrink:0">${k}</span>
+      <span style="font-size:12px;color:var(--muted);line-height:1.5">${v}</span>
+    </div>`;
+
+  document.getElementById('notes-progress-list').innerHTML =
+    Object.entries(PROGRESS_DESCRIPTIONS).map(([k,v])=>
+      row(k, v, (PROGRESS_LEVELS[k]||PROGRESS_LEVELS[0]).color)
+    ).join('');
+
+  document.getElementById('notes-challenge-list').innerHTML =
+    Object.entries(CHALLENGES).filter(([k])=>parseInt(k)>0).map(([k,v])=>
+      row(k, v, (PROGRESS_LEVELS[k]||PROGRESS_LEVELS[0]).color)
+    ).join('');
 }
 
 // ── GRANTS ────────────────────────────────────────────────────────────────────
