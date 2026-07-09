@@ -273,49 +273,47 @@ select option { background: #1A1A2B; }
               <option>Meeting 1</option><option>Meeting 2</option><option>Meeting 3</option>
               <option>Term Sheet</option><option>Signed</option><option>Passed</option>
             </select>
-            <select id="filter-progress" onchange="renderInvestors()" style="width:130px;font-size:11px">
+            <select id="filter-progress" onchange="renderInvestors()" style="width:160px;font-size:11px">
               <option value="">All progress</option>
               <option value="0">0 – Not interested</option>
-              <option value="1">1 – No money</option>
-              <option value="2">2 – Will refer</option>
-              <option value="3">3 – Needs session</option>
-              <option value="4">4 – Needs more info</option>
-              <option value="5">5 – Needs examples</option>
-              <option value="6">6 – Needs model explained</option>
-              <option value="7">7 – Ready to invest</option>
+              <option value="1">1 – Identified</option>
+              <option value="2">2 – Contacted</option>
+              <option value="3">3 – Interested</option>
+              <option value="4">4 – Knowledge 0</option>
+              <option value="5">5 – Knowledge 1</option>
+              <option value="6">6 – Knowledge 2</option>
+              <option value="7">7 – Knowledge 3</option>
+              <option value="8">8 – Willing to invest</option>
+              <option value="9">9 – Requested docs</option>
+              <option value="10">10 – INVESTOR ✓</option>
             </select>
-            <select id="filter-wc" onchange="renderInvestors()" style="width:110px;font-size:11px">
-              <option value="">All contacts</option><option>Warm</option><option>Cold</option>
-            </select>
+            <select id="filter-wc" onchange="renderInvestors()" style="display:none"></select>
           </div>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>Investor</th><th>Type</th><th>Check $K</th>
-              <th>Progress</th><th>Next Action</th><th>Channel</th><th>Contact</th><th>Warm/Cold</th><th>NDA</th><th>Meetings</th><th>Last Meeting</th><th>Close %</th><th>Notes</th><th></th>
+              <th>Name</th><th>Company</th><th>Type</th><th>Check $K</th>
+              <th>Progress</th><th>Next Action</th><th>Contact</th><th>NDA</th><th>Meetings</th><th>Last Meeting</th><th>Notes</th><th></th>
             </tr></thead>
             <tbody id="inv-body"></tbody>
           </table>
         </div>
         <div class="add-row">
-          <div class="field"><label>Name</label><input type="text" id="n-name" placeholder="Investor name" style="min-width:130px"></div>
-          <div class="field"><label>Type</label><input type="text" id="n-type" placeholder="VC / Angel / Strategic…" style="min-width:110px"></div>
+          <div class="field"><label>Name</label><input type="text" id="n-name" placeholder="Person name" style="min-width:120px"></div>
+          <div class="field"><label>Company</label><input type="text" id="n-company" placeholder="Company name" style="min-width:110px"></div>
+          <div class="field"><label>Type</label><input type="text" id="n-type" placeholder="VC / Angel…" style="min-width:90px"></div>
           <div class="field"><label>$K</label><input type="number" id="n-amt" placeholder="25" style="max-width:60px"></div>
-          <div class="field"><label>Status</label>
-            <select id="n-status">
-              <option>To Contact</option><option>Research</option><option>Warm Intro</option>
-              <option>Meeting 1</option><option>Meeting 2</option><option>Meeting 3</option>
-              <option>Term Sheet</option><option>Signed</option><option>Passed</option>
-            </select>
-          </div>
-          <div class="field"><label>Warm/Cold</label><select id="n-wc"><option>Warm</option><option>Cold</option></select></div>
-          <div class="field"><label>Channel</label><select id="n-channel"><option>LinkedIn</option><option>Email</option><option>Intro</option><option>Event</option><option>Cold Call</option></select></div>
-          <div class="field"><label>Close %</label><input type="number" id="n-close" placeholder="0" min="0" max="100" style="max-width:60px"></div>
-          <div class="field"><label>Priority</label><select id="n-prio"><option>High</option><option>Medium</option><option>Low</option></select></div>
+          <div class="field"><label>Contact</label><input type="text" id="n-contact" placeholder="email / @handle" style="min-width:130px"></div>
           <div class="field"><label>Notes</label><input type="text" id="n-notes" placeholder="Quick note…" style="min-width:150px"></div>
-          <div class="field"><label>&nbsp;</label><button class="btn btn-primary" onclick="addInvestor()">+ Add investor</button></div>
+          <div class="field"><label>&nbsp;</label><button class="btn btn-primary" onclick="addInvestor()">+ Add</button></div>
         </div>
+        <!-- hidden fields kept for JS compatibility -->
+        <select id="n-status" style="display:none"><option>To Contact</option></select>
+        <select id="n-wc" style="display:none"><option>Warm</option></select>
+        <select id="n-channel" style="display:none"><option>LinkedIn</option></select>
+        <input type="number" id="n-close" style="display:none">
+        <select id="n-prio" style="display:none"><option>High</option></select>
       </div>
 
       <div class="grid2">
@@ -324,20 +322,12 @@ select option { background: #1A1A2B; }
           <div id="status-bars"></div>
         </div>
         <div class="card">
-          <div class="card-title">Capital targets</div>
+          <div class="card-title">Progress breakdown</div>
           <div id="capital-bars"></div>
         </div>
       </div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-title">Outreach by channel</div>
-          <div id="channel-bars"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Channel vs warm/cold</div>
-          <div id="channel-wc-bars"></div>
-        </div>
-      </div>
+      <!-- hidden divs kept for JS compatibility -->
+      <div style="display:none"><div id="channel-bars"></div><div id="channel-wc-bars"></div></div>
     </div>
 
     <!-- ── GRANTS ── -->
@@ -371,15 +361,22 @@ select option { background: #1A1A2B; }
         <div class="card">
           <div class="card-title">Allocation breakdown</div>
           <table>
-            <thead><tr><th>Category</th><th>Amount ($)</th><th>% of round</th><th>Milestone</th></tr></thead>
+            <thead><tr><th>Category</th><th>Amount ($)</th><th>% of round</th><th>Milestone</th><th></th></tr></thead>
             <tbody id="funds-body"></tbody>
             <tfoot><tr>
               <td>Total</td>
               <td class="mono" id="funds-total" style="color:var(--text)">—</td>
               <td class="mono" id="funds-pct" style="color:var(--text)">—</td>
-              <td style="font-size:11px;color:var(--muted)">Market-ready + first customers</td>
+              <td style="font-size:11px;color:var(--muted)" id="funds-tfoot-note">—</td>
+              <td></td>
             </tr></tfoot>
           </table>
+          <div class="add-row" style="margin-top:.5rem">
+            <div class="field"><label>Category</label><input type="text" id="f-cat" placeholder="e.g. Legal" style="min-width:130px"></div>
+            <div class="field"><label>Amount ($)</label><input type="number" id="f-amt" placeholder="10000" style="max-width:90px"></div>
+            <div class="field"><label>Milestone</label><input type="text" id="f-milestone" placeholder="What it unlocks" style="min-width:160px"></div>
+            <div class="field"><label>&nbsp;</label><button class="btn btn-primary btn-sm" onclick="addFund()">+ Add row</button></div>
+          </div>
           <div id="funds-chart-wrap" style="margin-top:1.25rem;position:relative;height:180px">
             <canvas id="fundsChart" role="img" aria-label="Donut chart: use of $200K pre-seed funds"></canvas>
           </div>
@@ -389,26 +386,20 @@ select option { background: #1A1A2B; }
           <div class="card">
             <div class="card-title">SAFE note terms</div>
             <table>
-              <tbody>
-                <tr><td style="color:var(--muted)">Round size</td><td><div style="display:flex;align-items:center;gap:4px"><span style="font-family:monospace;color:var(--muted)">$</span><input type="number" id="round-target" value="200" min="1" onfocus="this._focused=true" onblur="this._focused=false" onchange="state.roundTarget=parseInt(this.value)||200;updatePipeline();save()" style="max-width:80px;font-family:monospace"><span style="font-family:monospace;color:var(--muted)">K</span></div></td></tr>
-                <tr><td style="color:var(--muted)">Valuation cap</td><td class="mono">$2,500,000</td></tr>
-                <tr><td style="color:var(--muted)">Discount rate</td><td class="mono">20%</td></tr>
-                <tr><td style="color:var(--muted)">Instrument</td><td class="mono">SAFE Note (ASA)</td></tr>
-                <tr><td style="color:var(--muted)">Min check size</td><td class="mono">$10,000</td></tr>
-                <tr><td style="color:var(--muted)">Target investors</td><td class="mono">6–8</td></tr>
-                <tr><td style="color:var(--muted)">Close deadline</td><td class="mono">Jul 31, 2026</td></tr>
-                <tr><td style="color:var(--muted)">Registered</td><td class="mono">Ireland</td></tr>
-              </tbody>
+              <tbody id="safe-body"></tbody>
             </table>
+            <div class="add-row" style="margin-top:.5rem">
+              <div class="field"><label>Term</label><input type="text" id="safe-key" placeholder="e.g. Lead investor" style="min-width:120px"></div>
+              <div class="field"><label>Value</label><input type="text" id="safe-val" placeholder="e.g. TBD" style="min-width:120px"></div>
+              <div class="field"><label>&nbsp;</label><button class="btn btn-sm btn-primary" onclick="addSafeTerm()">+ Add</button></div>
+            </div>
           </div>
           <div class="card">
             <div class="card-title">Milestones this unlocks</div>
-            <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted);line-height:1.5">
-              <div><span style="color:var(--green)">✓</span> MVP complete and market-ready</div>
-              <div><span style="color:var(--green)">✓</span> Legal setup + IP protection</div>
-              <div><span style="color:var(--green)">✓</span> First 3 paying customers live</div>
-              <div><span style="color:var(--green)">✓</span> Network effects flywheel activated</div>
-              <div><span style="color:var(--green)">✓</span> Seed round story fully positioned</div>
+            <div id="milestones-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div class="add-row" style="margin-top:.5rem">
+              <div class="field"><label>Milestone</label><input type="text" id="m-text" placeholder="e.g. First 3 customers live" style="min-width:200px"></div>
+              <div class="field"><label>&nbsp;</label><button class="btn btn-sm btn-primary" onclick="addMilestone()">+ Add</button></div>
             </div>
           </div>
         </div>
@@ -422,16 +413,19 @@ select option { background: #1A1A2B; }
 
       <div class="card-hdr" style="margin-bottom:1rem">
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <select id="crm-filter-progress" onchange="renderCRM()" style="width:160px;font-size:11px">
+          <select id="crm-filter-progress" onchange="renderCRM()" style="width:180px;font-size:11px">
             <option value="">All progress levels</option>
             <option value="0">0 – Not interested</option>
-            <option value="1">1 – No money</option>
-            <option value="2">2 – Will refer</option>
-            <option value="3">3 – Needs session</option>
-            <option value="4">4 – Needs more info</option>
-            <option value="5">5 – Needs examples</option>
-            <option value="6">6 – Needs model explained</option>
-            <option value="7">7 – Ready to invest</option>
+            <option value="1">1 – Identified</option>
+            <option value="2">2 – Contacted</option>
+            <option value="3">3 – Interested</option>
+            <option value="4">4 – Knowledge 0</option>
+            <option value="5">5 – Knowledge 1</option>
+            <option value="6">6 – Knowledge 2</option>
+            <option value="7">7 – Knowledge 3</option>
+            <option value="8">8 – Willing to invest</option>
+            <option value="9">9 – Requested docs</option>
+            <option value="10">10 – INVESTOR ✓</option>
           </select>
           <input type="text" id="crm-search" placeholder="Search name or company…" oninput="renderCRM()" style="width:180px;font-size:11px">
         </div>
@@ -505,6 +499,25 @@ const DEFAULT_GRANTS = [
   {name:"AngelList EU Profile",org:"AngelList",amt:"Varies",dilutive:"Yes",urgency:"hot",deadline:"ASAP",status:"To Setup"},
 ];
 
+const DEFAULT_SAFE = [
+  {key:"Round size",val:"$200,000"},
+  {key:"Valuation cap",val:"$2,500,000"},
+  {key:"Discount rate",val:"20%"},
+  {key:"Instrument",val:"SAFE Note (ASA)"},
+  {key:"Min check size",val:"$10,000"},
+  {key:"Target investors",val:"6–8"},
+  {key:"Close deadline",val:"Jul 31, 2026"},
+  {key:"Registered",val:"Ireland"},
+];
+
+const DEFAULT_MILESTONES = [
+  "MVP complete and market-ready",
+  "Legal setup + IP protection",
+  "First 3 paying customers live",
+  "Network effects flywheel activated",
+  "Seed round story fully positioned",
+];
+
 const DEFAULT_CRM = [
   {name:"Label Backer A",contact:"",status:"Warm Intro",channel:"Intro",challenges:"Needs board approval for check size",nda:true,meetings:1,lastMeeting:"2026-06-19",interest:"Very High",goal:80,reasonYes:"Already backing us, knows product",reasonNo:""},
   {name:"Label Backer B",contact:"",status:"Warm Intro",channel:"Intro",challenges:"Publisher budget cycles slow",nda:false,meetings:1,lastMeeting:"2026-06-19",interest:"High",goal:60,reasonYes:"Strong advocate, publisher relationships",reasonNo:"Budget timing uncertain"},
@@ -522,10 +535,12 @@ let state = {
   investors: JSON.parse(JSON.stringify(DEFAULT_INVESTORS)),
   timeline:  JSON.parse(JSON.stringify(DEFAULT_TIMELINE)),
   funds:     JSON.parse(JSON.stringify(DEFAULT_FUNDS)),
+  safe:      JSON.parse(JSON.stringify(DEFAULT_SAFE)),
+  milestones:JSON.parse(JSON.stringify(DEFAULT_MILESTONES)),
   grants:    JSON.parse(JSON.stringify(DEFAULT_GRANTS)),
   log:       JSON.parse(JSON.stringify(DEFAULT_LOG)),
   crm:       JSON.parse(JSON.stringify(DEFAULT_CRM)),
-  roundTarget: 200, // in $K
+  roundTarget: 200,
 };
 
 let saveTimer = null;
@@ -567,6 +582,8 @@ async function pollSync() {
       state.investors   = data.investors   || state.investors;
       state.timeline    = data.timeline    || state.timeline;
       state.funds       = data.funds       || state.funds;
+      state.safe        = data.safe        || state.safe;
+      state.milestones  = data.milestones  || state.milestones;
       state.grants      = data.grants      || state.grants;
       state.log         = data.log         || state.log;
       state.crm         = data.crm         || state.crm;
@@ -592,6 +609,8 @@ async function loadFromFirebase() {
       state.investors   = data.investors   || state.investors;
       state.timeline    = data.timeline    || state.timeline;
       state.funds       = data.funds       || state.funds;
+      state.safe        = data.safe        || state.safe;
+      state.milestones  = data.milestones  || state.milestones;
       state.grants      = data.grants      || state.grants;
       state.log         = data.log         || state.log;
       state.crm         = data.crm         || state.crm;
@@ -644,14 +663,17 @@ function grantStatusOpts(cur) {
 
 // ── PROGRESS LEVELS ───────────────────────────────────────────────────────────
 const PROGRESS_LEVELS = {
-  0: { label: "0 – Not interested",        color: "#F04D4D", action: "No action — move on" },
-  1: { label: "1 – No money",              color: "#F88",    action: "Negotiations over — ask for referrals to other investors" },
-  2: { label: "2 – Will refer",            color: "#F5A623", action: "Ask for a warm introduction to someone who will invest" },
-  3: { label: "3 – Needs session",         color: "#A78BFA", action: "Prepare a session with other presenters and/or testimonials" },
-  4: { label: "4 – Needs more info",       color: "#4D9FFF", action: "Prepare an ad hoc session with technical/financial/market detail" },
-  5: { label: "5 – Needs examples",        color: "#22C97A", action: "Present detailed examples and testimonials of economic value" },
-  6: { label: "6 – Needs model explained", color: "#7C5CFC", action: "Present basic complexity concepts and examples of the model" },
-  7: { label: "7 – Ready to invest",       color: "#22C97A", action: "No challenges — move to close" },
+  0:  { label: "0 – Not interested",                color: "#F04D4D", action: "Not interested in the project: negotiations are over" },
+  1:  { label: "1 – Identified",                    color: "#F88",    action: "Interested but doesn't have money to invest: negotiations are over; explore other investors through this contact" },
+  2:  { label: "2 – Contacted",                     color: "#F5A623", action: "Will not invest but knows who will; ask for a warm introduction" },
+  3:  { label: "3 – Interested",                    color: "#FFD166", action: "Doesn't understand the project, but he'd be interested in investing; prepare a session with other presenters and/or testimonials" },
+  4:  { label: "4 – Knowledge 0",                   color: "#A78BFA", action: "Understands the project but requires more technical / financial / market information before investing; prepare an ad hoc session" },
+  5:  { label: "5 – Knowledge 1",                   color: "#7C5CFC", action: "Understands the economic value of the proposal, but not the industry or the model; present in detail examples and testimonials" },
+  6:  { label: "6 – Knowledge 2",                   color: "#4D9FFF", action: "Understands the impact of the proposal on the industry, but not the model; present basic complexity concepts and examples" },
+  7:  { label: "7 – Knowledge 3",                   color: "#22C97A", action: "Understands the impact on the industry and the model: there are no challenges" },
+  8:  { label: "8 – Willing to invest",             color: "#22C97A", action: "Is willing to invest — move to close, send documentation" },
+  9:  { label: "9 – Requested documentation",       color: "#22E5A0", action: "Has requested the documentation to invest — send SAFE and follow up within 48h" },
+  10: { label: "10 – INVESTOR ✓",                   color: "#FFD700", action: "HE IS ALREADY AN INVESTOR (has made a deposit)" },
 };
 
 function progressOpts(cur) {
@@ -696,26 +718,16 @@ function renderInvestors() {
           ${crmLink}
         </div>
       </td>
-      <td><input type="text" value="${esc(inv.type||'')}" onchange="state.investors[${i}].type=this.value;save()" style="max-width:100px" placeholder="VC / Angel…"></td>
+      <td><input type="text" value="${esc(inv.company||'')}" onchange="state.investors[${i}].company=this.value;save()" style="max-width:110px" placeholder="Company…"></td>
+      <td><input type="text" value="${esc(inv.type||'')}" onchange="state.investors[${i}].type=this.value;save()" style="max-width:90px" placeholder="VC / Angel…"></td>
       <td><input type="number" value="${inv.amt}" onchange="state.investors[${i}].amt=parseInt(this.value)||0;updatePipeline();save()" style="max-width:56px"></td>
       <td style="min-width:160px">
         <select onchange="state.investors[${i}].progress=parseInt(this.value);updatePipeline();save()" style="font-size:11px;color:${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).color}">
           ${progressOpts(inv.progress||0)}
         </select>
       </td>
-      <td style="min-width:160px;font-size:10px;color:var(--muted);line-height:1.3">${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).action}</td>
-      <td>
-        <select onchange="state.investors[${i}].channel=this.value;save()" style="width:90px">
-          ${channelOpts(inv.channel||'LinkedIn')}
-        </select>
-      </td>
+      <td style="min-width:180px;font-size:10px;color:var(--muted);line-height:1.3">${(PROGRESS_LEVELS[inv.progress||0]||PROGRESS_LEVELS[0]).action}</td>
       <td><input type="text" value="${esc(inv.contact||'')}" onchange="state.investors[${i}].contact=this.value;save()" style="max-width:110px" placeholder="email / @handle"></td>
-      <td>
-        <select onchange="state.investors[${i}].wc=this.value;updatePipeline();save()">
-          <option${inv.wc==='Warm'?' selected':''}>Warm</option>
-          <option${inv.wc==='Cold'?' selected':''}>Cold</option>
-        </select>
-      </td>
       <td>
         <select onchange="state.investors[${i}].nda=this.value==='Yes';save()" style="color:${inv.nda?'var(--green)':'var(--dim)'}">
           <option${inv.nda?' selected':''}>Yes</option>
@@ -724,12 +736,6 @@ function renderInvestors() {
       </td>
       <td><input type="number" value="${inv.meetings||0}" min="0" onchange="state.investors[${i}].meetings=parseInt(this.value)||0;save()" style="max-width:48px"></td>
       <td><input type="date" value="${inv.lastMeeting||''}" onchange="state.investors[${i}].lastMeeting=this.value;save()" style="max-width:120px"></td>
-      <td>
-        <div style="display:flex;align-items:center;gap:4px">
-          <input type="number" value="${pct}" min="0" max="100" onchange="state.investors[${i}].closePct=parseInt(this.value)||0;updatePipeline();save()" style="max-width:48px;color:${pctColor}">
-          <span style="font-size:10px;color:${pctColor}">%</span>
-        </div>
-      </td>
       <td><input type="text" value="${esc(inv.notes||'')}" onchange="state.investors[${i}].notes=this.value;save()" style="min-width:140px"></td>
       <td><button class="btn btn-sm btn-danger" onclick="removeInvestor(${i})">Del</button></td>
     </tr>`;
@@ -758,24 +764,23 @@ function addInvestor() {
   if (!name) return;
   state.investors.push({
     name,
+    company: document.getElementById('n-company').value || '',
     type: document.getElementById('n-type').value || 'Angel',
     amt: parseInt(document.getElementById('n-amt').value) || 25,
-    status: document.getElementById('n-status').value,
+    contact: document.getElementById('n-contact').value || '',
+    status: 'To Contact',
     progress: 0,
-    contact: '',
-    wc: document.getElementById('n-wc').value,
-    channel: document.getElementById('n-channel').value,
-    closePct: parseInt(document.getElementById('n-close').value) || null,
     nda: false,
     meetings: 0,
     lastMeeting: '',
-    prio: document.getElementById('n-prio').value,
+    prio: 'Medium',
     notes: document.getElementById('n-notes').value,
   });
   document.getElementById('n-name').value = '';
+  document.getElementById('n-company').value = '';
   document.getElementById('n-amt').value = '';
+  document.getElementById('n-contact').value = '';
   document.getElementById('n-notes').value = '';
-  document.getElementById('n-close').value = '';
   save(); renderInvestors();
 }
 
@@ -938,15 +943,68 @@ function renderFunds() {
   const total = state.funds.reduce((a,f)=>a+f.amt,0);
   document.getElementById('funds-body').innerHTML = state.funds.map((f,i)=>`
     <tr>
-      <td style="font-weight:500">${esc(f.cat)}</td>
+      <td><input type="text" value="${esc(f.cat)}" onchange="state.funds[${i}].cat=this.value;save()" style="min-width:140px"></td>
       <td><input type="number" value="${f.amt}" onchange="state.funds[${i}].amt=parseInt(this.value)||0;renderFunds();save()" style="max-width:100px"></td>
-      <td class="mono">${(f.amt/total*100).toFixed(1)}%</td>
-      <td style="color:var(--muted);font-size:11px">${esc(f.milestone)}</td>
+      <td class="mono">${total>0?(f.amt/total*100).toFixed(1):'0.0'}%</td>
+      <td><input type="text" value="${esc(f.milestone)}" onchange="state.funds[${i}].milestone=this.value;save()" style="min-width:160px"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="removeFund(${i})">Del</button></td>
     </tr>`).join('');
-  const pct = total/200000*100;
+  const target = (state.roundTarget || 200) * 1000;
+  const pct = total/target*100;
   document.getElementById('funds-total').textContent = '$'+total.toLocaleString();
   document.getElementById('funds-total').style.color = Math.abs(pct-100)<0.5?'var(--green)':pct>100?'var(--red)':'var(--amber)';
-  document.getElementById('funds-pct').textContent = pct.toFixed(1)+'%';
+  document.getElementById('funds-pct').textContent = pct.toFixed(1)+'% of $'+(target/1000).toLocaleString()+'K';
+  document.getElementById('funds-tfoot-note').textContent = pct>100?'Over budget':'Budget remaining: $'+(target-total).toLocaleString();
+
+  // SAFE terms
+  document.getElementById('safe-body').innerHTML = (state.safe||DEFAULT_SAFE).map((s,i)=>`
+    <tr>
+      <td><input type="text" value="${esc(s.key)}" onchange="state.safe[${i}].key=this.value;save()" style="color:var(--muted);max-width:140px"></td>
+      <td><input type="text" value="${esc(s.val)}" onchange="state.safe[${i}].val=this.value;save()" style="font-family:monospace;max-width:140px"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="removeSafeTerm(${i})">Del</button></td>
+    </tr>`).join('');
+
+  // Milestones
+  document.getElementById('milestones-list').innerHTML = (state.milestones||DEFAULT_MILESTONES).map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="color:var(--green);flex-shrink:0">✓</span>
+      <input type="text" value="${esc(m)}" onchange="state.milestones[${i}]=this.value;save()" style="font-size:12px;flex:1">
+      <button class="btn btn-sm btn-danger" onclick="removeMilestone(${i})">Del</button>
+    </div>`).join('');
+}
+
+function addFund() {
+  const cat = document.getElementById('f-cat').value.trim();
+  if (!cat) return;
+  state.funds.push({cat, amt: parseInt(document.getElementById('f-amt').value)||0, milestone: document.getElementById('f-milestone').value||''});
+  document.getElementById('f-cat').value=''; document.getElementById('f-amt').value=''; document.getElementById('f-milestone').value='';
+  renderFunds(); save();
+}
+function removeFund(i) {
+  if (!confirm('Remove '+state.funds[i].cat+'?')) return;
+  state.funds.splice(i,1); renderFunds(); save();
+}
+function addSafeTerm() {
+  const key = document.getElementById('safe-key').value.trim();
+  if (!key) return;
+  if (!state.safe) state.safe = JSON.parse(JSON.stringify(DEFAULT_SAFE));
+  state.safe.push({key, val: document.getElementById('safe-val').value||''});
+  document.getElementById('safe-key').value=''; document.getElementById('safe-val').value='';
+  renderFunds(); save();
+}
+function removeSafeTerm(i) {
+  state.safe.splice(i,1); renderFunds(); save();
+}
+function addMilestone() {
+  const t = document.getElementById('m-text').value.trim();
+  if (!t) return;
+  if (!state.milestones) state.milestones = JSON.parse(JSON.stringify(DEFAULT_MILESTONES));
+  state.milestones.push(t);
+  document.getElementById('m-text').value='';
+  renderFunds(); save();
+}
+function removeMilestone(i) {
+  state.milestones.splice(i,1); renderFunds(); save();
 }
 
 function renderFundsChart() {
@@ -1056,6 +1114,7 @@ function renderCRM() {
         </div>
         <button class="btn btn-sm btn-danger crm-del" onclick="removeCRM(${i})">Del</button>
       </div>
+      <button class="btn btn-sm" onclick="addCRMToPipeline(${i})" style="font-size:10px;color:var(--accent);border-color:rgba(124,92,252,0.3);margin-top:2px">⬡ Add to pipeline</button>
 
       <div style="padding:6px 8px;border-radius:6px;background:${lvl.color}18;border:1px solid ${lvl.color}33">
         <div style="font-size:9px;color:${lvl.color};text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Progress</div>
@@ -1120,6 +1179,31 @@ function addCRMContact() {
   save(); renderCRM();
 }
 
+function addCRMToPipeline(i) {
+  const c = state.crm[i];
+  const already = state.investors.find(inv => inv.name === c.name);
+  if (already) {
+    alert(c.name + ' is already in the pipeline.');
+    return;
+  }
+  state.investors.push({
+    name: c.name,
+    company: c.company || '',
+    type: '',
+    amt: 25,
+    contact: c.contact || '',
+    status: 'To Contact',
+    progress: c.progress || 0,
+    nda: false,
+    meetings: 0,
+    lastMeeting: '',
+    prio: 'Medium',
+    notes: '',
+  });
+  save();
+  alert(c.name + ' added to the investor pipeline!');
+}
+
 function removeCRM(i) {
   if (!confirm('Remove ' + state.crm[i].name + '?')) return;
   state.crm.splice(i,1);
@@ -1161,6 +1245,8 @@ function importData() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 updateDeadline();
 loadFromFirebase().then(() => {
+  if (!state.safe) state.safe = JSON.parse(JSON.stringify(DEFAULT_SAFE));
+  if (!state.milestones) state.milestones = JSON.parse(JSON.stringify(DEFAULT_MILESTONES));
   renderInvestors();
   renderGrants();
   renderFunds();
