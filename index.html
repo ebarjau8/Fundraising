@@ -188,7 +188,16 @@ select option { background: #1A1A2B; }
   .main { padding: 1rem; }
 }
 
-/* Hide number spinners */
+/* Login overlay */
+#login-overlay { position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center; }
+#login-overlay.hidden { display:none; }
+.login-box { background:var(--surface);border:1px solid var(--border2);border-radius:var(--card-r);padding:2.5rem 2rem;width:320px;text-align:center; }
+.login-logo { font-size:22px;font-weight:600;margin-bottom:.25rem; }
+.login-sub { font-size:11px;color:var(--muted);margin-bottom:1.75rem; }
+.login-box input[type=password] { width:100%;padding:.65rem .85rem;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:1rem;outline:none; }
+.login-box input[type=password]:focus { border-color:var(--accent); }
+.login-err { font-size:11px;color:var(--red);margin-bottom:.75rem;height:14px; }
+
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
@@ -221,7 +230,17 @@ input[type=number] { -moz-appearance: textfield; }
 </head>
 <body>
 
-<div class="app">
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">🎵 Music Tech</div>
+    <div class="login-sub">Pre-Seed Fundraising Dashboard</div>
+    <input type="password" id="login-pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkLogin()">
+    <div class="login-err" id="login-err"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="checkLogin()">Enter</button>
+  </div>
+</div>
+
+<div class="app" id="app-root" style="display:none">>
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="logo">
@@ -301,7 +320,7 @@ input[type=number] { -moz-appearance: textfield; }
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>Name</th><th>Company</th><th>Type</th><th>Check $K</th>
+              <th>Name</th><th>Company</th><th>Owner</th><th>Type</th><th>Check €K</th>
               <th>Progress</th><th>Challenges</th><th>Contact</th><th>NDA</th><th>Meetings</th><th>Last Meeting</th><th>Notes</th><th></th>
             </tr></thead>
             <tbody id="inv-body"></tbody>
@@ -310,6 +329,7 @@ input[type=number] { -moz-appearance: textfield; }
         <div class="add-row">
           <div class="field"><label>Name</label><input type="text" id="n-name" placeholder="Person name" style="min-width:120px"></div>
           <div class="field"><label>Company</label><input type="text" id="n-company" placeholder="Company name" style="min-width:110px"></div>
+          <div class="field"><label>Owner</label><input type="text" id="n-owner" placeholder="Who follows up" style="min-width:90px"></div>
           <div class="field"><label>Type</label><input type="text" id="n-type" placeholder="VC / Angel…" style="min-width:90px"></div>
           <div class="field"><label>$K</label><input type="number" id="n-amt" placeholder="25" style="max-width:60px"></div>
           <div class="field"><label>Contact</label><input type="text" id="n-contact" placeholder="email / @handle" style="min-width:130px"></div>
@@ -524,11 +544,11 @@ const DEFAULT_GRANTS = [
 ];
 
 const DEFAULT_SAFE = [
-  {key:"Round size",val:"$200,000"},
-  {key:"Valuation cap",val:"$2,500,000"},
+  {key:"Round size",val:"€200,000"},
+  {key:"Valuation cap",val:"€2,500,000"},
   {key:"Discount rate",val:"20%"},
   {key:"Instrument",val:"SAFE Note (ASA)"},
-  {key:"Min check size",val:"$10,000"},
+  {key:"Min check size",val:"€10,000"},
   {key:"Target investors",val:"6–8"},
   {key:"Close deadline",val:"Jul 31, 2026"},
   {key:"Registered",val:"Ireland"},
@@ -753,7 +773,7 @@ function renderInvestors() {
     const i = state.investors.indexOf(inv);
     const pct = closePct(inv);
     const pctColor = pct >= 60 ? 'var(--green)' : pct >= 30 ? 'var(--amber)' : 'var(--red)';
-    const crmLink = `<a href="#" onclick="openCRMCard('${esc(inv.name)}');return false" title="Open CRM card" style="font-size:10px;color:var(--accent)">CRM ↗</a>`;
+    const crmLink = `<a href="#" onclick="openCRMCard('€{esc(inv.name)}');return false" title="Open CRM card" style="font-size:10px;color:var(--accent)">CRM ↗</a>`;
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:4px">
@@ -762,6 +782,7 @@ function renderInvestors() {
         </div>
       </td>
       <td><input type="text" value="${esc(inv.company||'')}" onchange="state.investors[${i}].company=this.value;save()" style="max-width:110px" placeholder="Company…"></td>
+      <td><input type="text" value="${esc(inv.owner||'')}" onchange="state.investors[${i}].owner=this.value;save()" style="max-width:90px" placeholder="Owner…"></td>
       <td><input type="text" value="${esc(inv.type||'')}" onchange="state.investors[${i}].type=this.value;save()" style="max-width:90px" placeholder="VC / Angel…"></td>
       <td><input type="number" value="${inv.amt}" onchange="state.investors[${i}].amt=parseInt(this.value)||0;updatePipeline();save()" style="max-width:56px;-moz-appearance:textfield" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
       <td style="min-width:140px">
@@ -812,6 +833,7 @@ function addInvestor() {
   state.investors.push({
     name,
     company: document.getElementById('n-company').value || '',
+    owner: document.getElementById('n-owner').value || '',
     type: document.getElementById('n-type').value || 'Angel',
     amt: parseInt(document.getElementById('n-amt').value) || 25,
     contact: document.getElementById('n-contact').value || '',
@@ -826,6 +848,7 @@ function addInvestor() {
   });
   document.getElementById('n-name').value = '';
   document.getElementById('n-company').value = '';
+  document.getElementById('n-owner').value = '';
   document.getElementById('n-amt').value = '';
   document.getElementById('n-contact').value = '';
   document.getElementById('n-notes').value = '';
@@ -842,20 +865,25 @@ function updatePipeline() {
   const inv = state.investors;
   const total = inv.length;
   const target = state.roundTarget || 200;
-  const warm = inv.filter(i => i.wc === 'Warm').reduce((a, i) => a + i.amt, 0);
-  const signed = inv.filter(i => i.status === 'Signed').reduce((a, i) => a + i.amt, 0);
-  const inProg = inv.filter(i => ['Meeting 1','Meeting 2','Meeting 3','Term Sheet'].includes(i.status)).reduce((a,i)=>a+i.amt,0);
-  const weightedPipeline = inv.reduce((a,i) => a + (i.amt * (closePct(i)/100)), 0);
+
+  // Potential pipeline = sum of (amt * progress / 10)
+  const potential = inv.reduce((a,i) => a + (i.amt * (parseInt(i.progress)||0) / 10), 0);
+
+  // Signed = progress level 10
+  const signed = inv.filter(i => parseInt(i.progress) === 10).reduce((a,i) => a + i.amt, 0);
+
+  // Total pipeline = sum of all check amounts
+  const totalAmt = inv.reduce((a,i) => a + (i.amt||0), 0);
+
+  document.getElementById('pipeline-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">Investors tracked</div><div class="metric-value">${total}</div></div>
+    <div class="metric"><div class="metric-label">Potential pipeline</div><div class="metric-value" style="color:var(--blue)">€${Math.round(potential)}K</div></div>
+    <div class="metric"><div class="metric-label">Round target</div><div class="metric-value"><div style="display:flex;align-items:center;gap:4px"><span style="color:var(--muted);font-size:14px">€</span><input type="number" value="${target}" min="1" onfocus="this._focused=true" onblur="this._focused=false" onchange="state.roundTarget=parseInt(this.value)||200;updatePipeline();save()" style="max-width:70px;font-size:16px;font-weight:600;font-family:inherit;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);padding:0"><span style="color:var(--muted);font-size:12px">K</span></div></div></div>
+    <div class="metric"><div class="metric-label">Signed</div><div class="metric-value${signed>0?' green':''}">€${signed}K</div></div>`;
 
   // Update round-target input if it exists
   const rtInput = document.getElementById('round-target');
-  if (rtInput && !rtInput._focused) rtInput.value = target * 1000;
-
-  document.getElementById('pipeline-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">Investors tracked</div><div class="metric-value">${total}</div><div class="metric-sub">${inv.filter(i=>i.wc==='Warm').length} warm · ${inv.filter(i=>i.wc==='Cold').length} cold</div></div>
-    <div class="metric"><div class="metric-label">Warm pipeline</div><div class="metric-value">$${warm}K</div><div class="metric-sub">${inv.filter(i=>i.wc==='Warm').length} contacts · ${Math.round(warm/target*100)}% of $${target}K</div></div>
-    <div class="metric"><div class="metric-label">Weighted close</div><div class="metric-value${weightedPipeline>0?' amber':''}" style="font-size:16px">$${Math.round(weightedPipeline)}K</div><div class="metric-sub">probability-adjusted pipeline</div></div>
-    <div class="metric"><div class="metric-label">Signed</div><div class="metric-value${signed>0?' green':''}">$${signed}K</div><div class="metric-sub">${inv.filter(i=>i.status==='Signed').length} closed · ${Math.round(signed/target*100)}% of $${target}K target</div></div>`;
+  if (rtInput && !rtInput._focused) rtInput.value = target;
 
   // Status bars
   const counts = {}, amts = {};
@@ -863,7 +891,7 @@ function updatePipeline() {
   const colors = {"Warm Intro":"#22C97A","Meeting 1":"#4D9FFF","Meeting 2":"#2E7FD4","Meeting 3":"#1A5FA5","Term Sheet":"#F5A623","Signed":"#22C97A","Research":"#7C5CFC","To Contact":"#F5A623","Passed":"#F04D4D"};
   document.getElementById('status-bars').innerHTML = Object.entries(counts).map(([s,c])=>`
     <div class="prog-wrap">
-      <div class="prog-label"><span><span class="pill ${SC[s]||'s-contact'}">${s}</span></span><span class="mono">${c} · $${amts[s]}K</span></div>
+      <div class="prog-label"><span><span class="pill ${SC[s]||'s-contact'}">${s}</span></span><span class="mono">${c} · €${amts[s]}K</span></div>
       <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(c/(total||1)*100)}%;background:${colors[s]||'#888'}"></div></div>
     </div>`).join('');
 
@@ -1033,10 +1061,10 @@ function renderFunds() {
     </tr>`).join('');
   const target = (state.roundTarget || 200) * 1000;
   const pct = total/target*100;
-  document.getElementById('funds-total').textContent = '$'+total.toLocaleString();
+  document.getElementById('funds-total').textContent = '€'+total.toLocaleString();
   document.getElementById('funds-total').style.color = Math.abs(pct-100)<0.5?'var(--green)':pct>100?'var(--red)':'var(--amber)';
-  document.getElementById('funds-pct').textContent = pct.toFixed(1)+'% of $'+(target/1000).toLocaleString()+'K';
-  document.getElementById('funds-tfoot-note').textContent = pct>100?'Over budget':'Budget remaining: $'+(target-total).toLocaleString();
+  document.getElementById('funds-pct').textContent = pct.toFixed(1)+'% of €'+(target/1000).toLocaleString()+'K';
+  document.getElementById('funds-tfoot-note').textContent = pct>100?'Over budget':'Budget remaining: €'+(target-total).toLocaleString();
 
   // SAFE terms
   document.getElementById('safe-body').innerHTML = (state.safe||DEFAULT_SAFE).map((s,i)=>`
@@ -1323,6 +1351,28 @@ function importData() {
     reader.readAsText(e.target.files[0]);
   };
   input.click();
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+const DASHBOARD_PASSWORD = 'musictech2026';
+
+function checkLogin() {
+  const pw = document.getElementById('login-pw').value;
+  if (pw === DASHBOARD_PASSWORD) {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('app-root').style.display = 'grid';
+    sessionStorage.setItem('auth', '1');
+  } else {
+    document.getElementById('login-err').textContent = 'Incorrect password. Please try again.';
+    document.getElementById('login-pw').value = '';
+    document.getElementById('login-pw').focus();
+  }
+}
+
+// Check if already authenticated this session
+if (sessionStorage.getItem('auth') === '1') {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('app-root').style.display = 'grid';
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
