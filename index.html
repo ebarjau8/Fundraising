@@ -58,7 +58,7 @@ a { color: var(--accent); }
 .view-sub { font-size: 12px; color: var(--muted); margin-bottom: 1.5rem; }
 
 /* Metrics row */
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 1.5rem; }
 .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--card-r); padding: 1rem 1.1rem; }
 .metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
 .metric-value { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; }
@@ -227,8 +227,31 @@ input[type=number] { -moz-appearance: textfield; }
 .crm-del { opacity: 0; transition: opacity .15s; }
 .crm-card:hover .crm-del { opacity: 1; }
 </style>
+<script>
+// Login must be defined before body renders
+function checkLogin() {
+  const pw = document.getElementById('login-pw').value;
+  if (pw === 'musictech2026') {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('app-root').style.display = 'grid';
+    sessionStorage.setItem('auth', '1');
+  } else {
+    document.getElementById('login-err').textContent = 'Incorrect password. Please try again.';
+    document.getElementById('login-pw').value = '';
+    document.getElementById('login-pw').focus();
+  }
+}
+</script>
 </head>
 <body>
+<script>
+if (sessionStorage.getItem('auth') === '1') {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('app-root').style.display = 'grid';
+  });
+}
+</script>
 
 <div id="login-overlay">
   <div class="login-box">
@@ -457,21 +480,7 @@ input[type=number] { -moz-appearance: textfield; }
 
       <div class="card-hdr" style="margin-bottom:1rem">
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <select id="crm-filter-progress" onchange="renderCRM()" style="width:180px;font-size:11px">
-            <option value="">All progress levels</option>
-            <option value="0">0 – Not interested</option>
-            <option value="1">1 – Identified</option>
-            <option value="2">2 – Contacted</option>
-            <option value="3">3 – Interested</option>
-            <option value="4">4 – Knowledge 0</option>
-            <option value="5">5 – Knowledge 1</option>
-            <option value="6">6 – Knowledge 2</option>
-            <option value="7">7 – Knowledge 3</option>
-            <option value="8">8 – Willing to invest</option>
-            <option value="9">9 – Requested docs</option>
-            <option value="10">10 – INVESTOR ✓</option>
-          </select>
-          <input type="text" id="crm-search" placeholder="Search name or company…" oninput="renderCRM()" style="width:180px;font-size:11px">
+          <input type="text" id="crm-search" placeholder="Search name or company…" oninput="renderCRM()" style="width:220px;font-size:11px">
         </div>
         <button class="btn btn-primary btn-sm" onclick="addCRMContact()">+ Add contact</button>
       </div>
@@ -773,7 +782,7 @@ function renderInvestors() {
     const i = state.investors.indexOf(inv);
     const pct = closePct(inv);
     const pctColor = pct >= 60 ? 'var(--green)' : pct >= 30 ? 'var(--amber)' : 'var(--red)';
-    const crmLink = `<a href="#" onclick="openCRMCard('€{esc(inv.name)}');return false" title="Open CRM card" style="font-size:10px;color:var(--accent)">CRM ↗</a>`;
+    const crmLink = `<a href="#" onclick="openCRMCard('${esc(inv.name)}');return false" title="Open CRM card" style="font-size:10px;color:var(--accent)">CRM ↗</a>`;
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:4px">
@@ -866,20 +875,40 @@ function updatePipeline() {
   const total = inv.length;
   const target = state.roundTarget || 200;
 
-  // Potential pipeline = sum of (amt * progress / 10)
-  const potential = inv.reduce((a,i) => a + (i.amt * (parseInt(i.progress)||0) / 10), 0);
-
-  // Signed = progress level 10
-  const signed = inv.filter(i => parseInt(i.progress) === 10).reduce((a,i) => a + i.amt, 0);
-
   // Total pipeline = sum of all check amounts
   const totalAmt = inv.reduce((a,i) => a + (i.amt||0), 0);
 
+  // Warm pipeline = sum of (amt * progress / 10)
+  const warmPipeline = inv.reduce((a,i) => a + (i.amt * (parseInt(i.progress)||0) / 10), 0);
+  const warmPct = target > 0 ? Math.round(warmPipeline / target * 100) : 0;
+
+  // Signed = progress level 10
+  const signed = inv.filter(i => parseInt(i.progress) === 10).reduce((a,i) => a + i.amt, 0);
+  const signedPct = target > 0 ? Math.round(signed / target * 100) : 0;
+
   document.getElementById('pipeline-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">Investors tracked</div><div class="metric-value">${total}</div></div>
-    <div class="metric"><div class="metric-label">Potential pipeline</div><div class="metric-value" style="color:var(--blue)">€${Math.round(potential)}K</div></div>
-    <div class="metric"><div class="metric-label">Round target</div><div class="metric-value"><div style="display:flex;align-items:center;gap:4px"><span style="color:var(--muted);font-size:14px">€</span><input type="number" value="${target}" min="1" onfocus="this._focused=true" onblur="this._focused=false" onchange="state.roundTarget=parseInt(this.value)||200;updatePipeline();save()" style="max-width:70px;font-size:16px;font-weight:600;font-family:inherit;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);padding:0"><span style="color:var(--muted);font-size:12px">K</span></div></div></div>
-    <div class="metric"><div class="metric-label">Signed</div><div class="metric-value${signed>0?' green':''}">€${signed}K</div></div>`;
+    <div class="metric">
+      <div class="metric-label">Round target</div>
+      <div class="metric-value"><div style="display:flex;align-items:center;gap:4px"><span style="color:var(--muted);font-size:14px">€</span><input type="number" value="${target}" min="1" onfocus="this._focused=true" onblur="this._focused=false" onchange="state.roundTarget=parseInt(this.value)||200;updatePipeline();save()" style="max-width:70px;font-size:16px;font-weight:600;font-family:inherit;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);padding:0"><span style="color:var(--muted);font-size:12px">K</span></div></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Potential pipeline</div>
+      <div class="metric-value" style="color:var(--blue)">€${totalAmt}K</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Warm pipeline</div>
+      <div class="metric-value" style="color:var(--accent)">€${Math.round(warmPipeline)}K</div>
+      <div class="metric-sub" style="color:var(--muted);font-size:10px;margin-top:2px">${warmPct}% of target</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Signed</div>
+      <div class="metric-value${signed>0?' green':''}">€${signed}K</div>
+      <div class="metric-sub" style="color:var(--muted);font-size:10px;margin-top:2px">${signedPct}% of target</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Investors tracked</div>
+      <div class="metric-value">${total}</div>
+    </div>`;
 
   // Update round-target input if it exists
   const rtInput = document.getElementById('round-target');
@@ -1190,15 +1219,15 @@ function goalColor(pct) {
 }
 
 function renderCRM() {
-  const fp = document.getElementById('crm-filter-progress').value;
   const search = (document.getElementById('crm-search').value||'').toLowerCase();
 
   let list = state.crm.map((c,i)=>({...c,_i:i}));
-  if (fp !== '') list = list.filter(c=>String(c.progress||0)===fp);
   if (search) list = list.filter(c=>
     (c.name||'').toLowerCase().includes(search)||
     (c.company||'').toLowerCase().includes(search)||
-    (c.contact||'').toLowerCase().includes(search)
+    (c.contact||'').toLowerCase().includes(search)||
+    (c.country||'').toLowerCase().includes(search)||
+    (c.city||'').toLowerCase().includes(search)
   );
 
   if (!list.length) {
@@ -1208,8 +1237,6 @@ function renderCRM() {
 
   document.getElementById('crm-grid').innerHTML = list.map(c => {
     const i = c._i;
-    const p = c.progress || 0;
-    const lvl = PROGRESS_LEVELS[p] || PROGRESS_LEVELS[0];
     const goalPct = Math.min(100, Math.max(0, c.goal||0));
     const goalClr = goalColor(goalPct);
     return `
@@ -1226,37 +1253,46 @@ function renderCRM() {
       </div>
       <button class="btn btn-sm" onclick="addCRMToPipeline(${i})" style="font-size:10px;color:var(--accent);border-color:rgba(124,92,252,0.3);margin-top:2px">⬡ Add to pipeline</button>
 
-      <div style="padding:6px 8px;border-radius:6px;background:${lvl.color}18;border:1px solid ${lvl.color}33">
-        <div style="font-size:9px;color:${lvl.color};text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Progress</div>
-        <select onchange="state.crm[${i}].progress=parseInt(this.value);renderCRM();save()" style="font-size:11px;color:${lvl.color};background:transparent;border:none;padding:0;width:100%;cursor:pointer">
-          ${progressOpts(p)}
-        </select>
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4">→ ${lvl.action}</div>
-      </div>
-
       <div class="crm-divider"></div>
 
       <div class="crm-row">
         <div class="crm-field">
+          <div class="crm-label">Owner</div>
+          <input type="text" value="${esc(c.owner||'')}" placeholder="Who follows up" onchange="state.crm[${i}].owner=this.value;save()" style="font-size:11px">
+        </div>
+        <div class="crm-field">
           <div class="crm-label">Contact / Email</div>
           <input type="text" value="${esc(c.contact||'')}" placeholder="email or @handle" onchange="state.crm[${i}].contact=this.value;save()" style="font-size:11px">
         </div>
+      </div>
+
+      <div class="crm-row">
+        <div class="crm-field">
+          <div class="crm-label">Country</div>
+          <input type="text" value="${esc(c.country||'')}" placeholder="e.g. Ireland" onchange="state.crm[${i}].country=this.value;save()" style="font-size:11px">
+        </div>
+        <div class="crm-field">
+          <div class="crm-label">City</div>
+          <input type="text" value="${esc(c.city||'')}" placeholder="e.g. Dublin" onchange="state.crm[${i}].city=this.value;save()" style="font-size:11px">
+        </div>
+      </div>
+
+      <div class="crm-row">
         <div class="crm-field">
           <div class="crm-label">Channel</div>
           <select onchange="state.crm[${i}].channel=this.value;save()" style="font-size:11px">
             ${channelOpts(c.channel||'LinkedIn')}
           </select>
         </div>
-      </div>
-
-      <div class="crm-field">
-        <div class="crm-label">Close probability %</div>
-        <div class="crm-goal-wrap">
-          <input type="number" value="${goalPct}" min="0" max="100" onchange="state.crm[${i}].goal=parseInt(this.value)||0;renderCRM();save()" style="font-size:13px;font-weight:600;max-width:56px;color:${goalClr}">
-          <div style="flex:1">
-            <div class="prog-bar" style="height:6px"><div class="prog-fill" style="width:${goalPct}%;background:${goalClr}"></div></div>
+        <div class="crm-field">
+          <div class="crm-label">Close probability %</div>
+          <div class="crm-goal-wrap">
+            <input type="number" value="${goalPct}" min="0" max="100" onchange="state.crm[${i}].goal=parseInt(this.value)||0;renderCRM();save()" style="font-size:13px;font-weight:600;max-width:56px;color:${goalClr}">
+            <div style="flex:1">
+              <div class="prog-bar" style="height:6px"><div class="prog-fill" style="width:${goalPct}%;background:${goalClr}"></div></div>
+            </div>
+            <span style="font-size:11px;color:${goalClr}">${goalPct}%</span>
           </div>
-          <span style="font-size:11px;color:${goalClr}">${goalPct}%</span>
         </div>
       </div>
 
@@ -1284,7 +1320,8 @@ function renderCRM() {
 function addCRMContact() {
   state.crm.unshift({
     name:'New Contact', company:'', url:'', contact:'', channel:'LinkedIn',
-    progress:0, challenges:'', goal:0, reasonYes:'', reasonNo:''
+    owner:'', country:'', city:'',
+    challenges:'', goal:0, reasonYes:'', reasonNo:''
   });
   save(); renderCRM();
 }
@@ -1299,6 +1336,7 @@ function addCRMToPipeline(i) {
   state.investors.push({
     name: c.name,
     company: c.company || '',
+    owner: c.owner || '',
     type: '',
     amt: 25,
     contact: c.contact || '',
@@ -1351,28 +1389,6 @@ function importData() {
     reader.readAsText(e.target.files[0]);
   };
   input.click();
-}
-
-// ── LOGIN ─────────────────────────────────────────────────────────────────────
-const DASHBOARD_PASSWORD = 'musictech2026';
-
-function checkLogin() {
-  const pw = document.getElementById('login-pw').value;
-  if (pw === DASHBOARD_PASSWORD) {
-    document.getElementById('login-overlay').classList.add('hidden');
-    document.getElementById('app-root').style.display = 'grid';
-    sessionStorage.setItem('auth', '1');
-  } else {
-    document.getElementById('login-err').textContent = 'Incorrect password. Please try again.';
-    document.getElementById('login-pw').value = '';
-    document.getElementById('login-pw').focus();
-  }
-}
-
-// Check if already authenticated this session
-if (sessionStorage.getItem('auth') === '1') {
-  document.getElementById('login-overlay').classList.add('hidden');
-  document.getElementById('app-root').style.display = 'grid';
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
