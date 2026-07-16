@@ -582,7 +582,8 @@ const DEFAULT_LOG = [
 ];
 
 // ── FIREBASE SETUP ────────────────────────────────────────────────────────────
-const FIREBASE_URL = 'https://fundraising-dashboard-46641-default-rtdb.firebaseio.com/dashboard';
+const FIREBASE_URL = 'https://fundraising-dashboard-46641-default-rtdb.firebaseio.com/dash-MVdkurXe2Hssl8RVhWqM';
+const OLD_FIREBASE_URL = 'https://fundraising-dashboard-46641-default-rtdb.firebaseio.com/dashboard';
 
 let state = {
   investors: JSON.parse(JSON.stringify(DEFAULT_INVESTORS)),
@@ -656,8 +657,24 @@ async function loadFromFirebase() {
   document.getElementById('save-indicator').textContent = 'Loading…';
   document.getElementById('save-indicator').style.opacity = '1';
   try {
-    const res = await fetch(FIREBASE_URL + '.json');
-    const data = await res.json();
+    let res = await fetch(FIREBASE_URL + '.json');
+    let data = await res.json();
+    // Auto-migrate: if new path is empty, pull from the old path once
+    if (!data) {
+      try {
+        const oldRes = await fetch(OLD_FIREBASE_URL + '.json');
+        const oldData = await oldRes.json();
+        if (oldData) {
+          data = oldData;
+          // Write migrated data to the new path immediately
+          await fetch(FIREBASE_URL + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(oldData)
+          });
+        }
+      } catch(e) { /* old path unavailable — start fresh */ }
+    }
     if (data) {
       state.investors   = data.investors   || state.investors;
       state.timeline    = data.timeline    || state.timeline;
@@ -1408,3 +1425,4 @@ loadFromFirebase().then(() => {
 </script>
 </body>
 </html>
+
